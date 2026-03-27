@@ -1,0 +1,1761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12-Week Interview Prep Tracker</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --yellow: #d29922;
+    --red: #f85149;
+    --purple: #bc8cff;
+    --orange: #f0883e;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 1.8rem; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); margin-bottom: 24px; font-size: 0.95rem; }
+  .header-row {
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 12px; margin-bottom: 20px;
+  }
+  .header-row .actions { display: flex; gap: 8px; }
+  .btn {
+    background: var(--card); border: 1px solid var(--border); color: var(--text);
+    padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;
+    transition: background 0.2s;
+  }
+  .btn:hover { background: var(--border); }
+  .btn-danger { border-color: var(--red); color: var(--red); }
+  .btn-danger:hover { background: rgba(248,81,73,0.15); }
+  .btn-export { border-color: var(--green); color: var(--green); }
+  .btn-export:hover { background: rgba(63,185,80,0.15); }
+
+  /* Overall Progress */
+  .overall {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; margin-bottom: 24px;
+  }
+  .overall h2 { font-size: 1.1rem; margin-bottom: 16px; }
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+  }
+  .stat-card {
+    background: var(--bg); border-radius: 8px; padding: 14px;
+    text-align: center;
+  }
+  .stat-card .num { font-size: 1.8rem; font-weight: 700; }
+  .stat-card .label { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+  .stat-card .bar {
+    width: 100%; height: 6px; background: var(--border);
+    border-radius: 3px; margin-top: 8px; overflow: hidden;
+  }
+  .stat-card .bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+  .c-green .num { color: var(--green); }
+  .c-green .bar-fill { background: var(--green); }
+  .c-blue .num { color: var(--accent); }
+  .c-blue .bar-fill { background: var(--accent); }
+  .c-purple .num { color: var(--purple); }
+  .c-purple .bar-fill { background: var(--purple); }
+  .c-orange .num { color: var(--orange); }
+  .c-orange .bar-fill { background: var(--orange); }
+  .c-yellow .num { color: var(--yellow); }
+  .c-yellow .bar-fill { background: var(--yellow); }
+
+  /* Day streak */
+  .streak {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px 20px; margin-bottom: 24px;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .streak-num { font-size: 2rem; font-weight: 700; color: var(--orange); }
+  .streak-label { color: var(--muted); font-size: 0.9rem; }
+  .streak-dots { display: flex; gap: 3px; flex-wrap: wrap; }
+  .streak-dot {
+    width: 14px; height: 14px; border-radius: 3px;
+    background: var(--border); transition: background 0.2s;
+  }
+  .streak-dot.done { background: var(--green); }
+  .streak-dot.today { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  /* Phase tabs */
+  .tabs {
+    display: flex; gap: 4px; margin-bottom: 20px;
+    border-bottom: 1px solid var(--border); padding-bottom: 0;
+    overflow-x: auto;
+  }
+  .tab {
+    padding: 8px 16px; cursor: pointer; border-radius: 8px 8px 0 0;
+    font-size: 0.85rem; color: var(--muted); border: 1px solid transparent;
+    border-bottom: none; white-space: nowrap; transition: all 0.2s;
+  }
+  .tab:hover { color: var(--text); background: var(--card); }
+  .tab.active {
+    color: var(--text); background: var(--card);
+    border-color: var(--border); border-bottom-color: var(--card);
+    margin-bottom: -1px; font-weight: 600;
+  }
+  .tab .badge {
+    display: inline-block; font-size: 0.7rem; padding: 1px 6px;
+    border-radius: 10px; margin-left: 6px; font-weight: 600;
+  }
+  .badge-done { background: rgba(63,185,80,0.2); color: var(--green); }
+  .badge-active { background: rgba(88,166,255,0.2); color: var(--accent); }
+  .badge-pending { background: rgba(139,148,158,0.15); color: var(--muted); }
+
+  /* Week cards */
+  .phase { display: none; }
+  .phase.active { display: block; }
+  .week-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; margin-bottom: 16px; overflow: hidden;
+  }
+  .week-header {
+    padding: 14px 20px; cursor: pointer; display: flex;
+    justify-content: space-between; align-items: center;
+    user-select: none; transition: background 0.2s;
+  }
+  .week-header:hover { background: rgba(255,255,255,0.03); }
+  .week-header h3 { font-size: 1rem; display: flex; align-items: center; gap: 10px; }
+  .week-progress { display: flex; align-items: center; gap: 10px; }
+  .week-progress .pct { font-size: 0.85rem; color: var(--muted); min-width: 40px; text-align: right; }
+  .week-progress .bar { width: 120px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .week-progress .bar-fill { height: 100%; background: var(--green); border-radius: 3px; transition: width 0.3s; }
+  .chevron { color: var(--muted); transition: transform 0.2s; font-size: 0.9rem; }
+  .week-card.open .chevron { transform: rotate(90deg); }
+  .week-body { padding: 0 20px 16px; display: none; }
+  .week-card.open .week-body { display: block; }
+
+  .day-group { margin-bottom: 14px; }
+  .day-label {
+    font-size: 0.8rem; font-weight: 600; color: var(--accent);
+    margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px solid var(--border);
+  }
+  .task-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 6px 0; font-size: 0.9rem;
+  }
+  .task-item input[type="checkbox"] {
+    margin-top: 4px; accent-color: var(--green);
+    width: 16px; height: 16px; cursor: pointer; flex-shrink: 0;
+  }
+  .task-item label { cursor: pointer; flex: 1; }
+  .task-item.checked label { color: var(--muted); text-decoration: line-through; }
+  .task-tag {
+    font-size: 0.7rem; padding: 1px 6px; border-radius: 4px;
+    font-weight: 600; white-space: nowrap;
+  }
+  .tag-dsa { background: rgba(88,166,255,0.15); color: var(--accent); }
+  .tag-go { background: rgba(63,185,80,0.15); color: var(--green); }
+  .tag-lld { background: rgba(188,140,255,0.15); color: var(--purple); }
+  .tag-hld { background: rgba(240,136,62,0.15); color: var(--orange); }
+  .tag-mc { background: rgba(210,153,34,0.15); color: var(--yellow); }
+  .tag-infra { background: rgba(139,148,158,0.15); color: var(--muted); }
+  .tag-behavioral { background: rgba(248,81,73,0.15); color: var(--red); }
+
+  .notes-area {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text); padding: 10px; margin-top: 8px;
+    font-family: inherit; font-size: 0.85rem; resize: vertical; min-height: 60px;
+  }
+  .notes-area::placeholder { color: var(--muted); }
+  .confidence {
+    margin-top: 10px; padding: 12px; background: var(--bg);
+    border-radius: 8px;
+  }
+  .confidence h4 { font-size: 0.85rem; margin-bottom: 8px; color: var(--muted); }
+  .conf-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; font-size: 0.85rem; }
+  .conf-row .stars { display: flex; gap: 2px; }
+  .conf-row .star {
+    cursor: pointer; font-size: 1.1rem; color: var(--border); transition: color 0.15s;
+  }
+  .conf-row .star.filled { color: var(--yellow); }
+  .conf-row .star:hover { color: var(--yellow); }
+
+  /* Daily Schedule Card */
+  .schedule-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; margin-bottom: 24px;
+  }
+  .schedule-card h2 { font-size: 1.1rem; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .schedule-grid {
+    display: grid; grid-template-columns: auto 1fr 1fr; gap: 0;
+    font-size: 0.85rem; border-radius: 8px; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .sg-cell {
+    padding: 10px 14px; border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+  }
+  .sg-cell:nth-child(3n) { border-right: none; }
+  .sg-cell:nth-last-child(-n+3) { border-bottom: none; }
+  .sg-header { background: rgba(88,166,255,0.08); font-weight: 600; color: var(--accent); }
+  .sg-slot { font-weight: 600; color: var(--muted); }
+  .sg-time { display: inline-block; background: rgba(63,185,80,0.15); color: var(--green);
+    font-size: 0.7rem; padding: 1px 6px; border-radius: 4px; font-weight: 600; margin-left: 6px; }
+  .sg-total { margin-top: 12px; display: flex; gap: 16px; flex-wrap: wrap; }
+  .sg-total-item {
+    background: var(--bg); border-radius: 8px; padding: 8px 14px;
+    font-size: 0.85rem; display: flex; align-items: center; gap: 8px;
+  }
+  .sg-total-item .sg-t-num { font-weight: 700; font-size: 1.1rem; }
+  .sg-t-green { color: var(--green); }
+  .sg-t-blue { color: var(--accent); }
+  .sg-t-purple { color: var(--purple); }
+
+  /* Time badge on day labels */
+  .day-time {
+    display: inline-block; font-size: 0.65rem; padding: 1px 6px;
+    border-radius: 4px; font-weight: 600; margin-left: 8px; vertical-align: middle;
+  }
+  .dt-weekday { background: rgba(88,166,255,0.12); color: var(--accent); }
+  .dt-weekend { background: rgba(188,140,255,0.12); color: var(--purple); }
+
+  /* Task time slots */
+  .task-time {
+    font-size: 0.7rem; color: var(--muted); padding: 1px 6px;
+    border: 1px solid var(--border); border-radius: 4px;
+    white-space: nowrap; flex-shrink: 0;
+  }
+
+  /* Apply timeline */
+  .timeline {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; margin-top: 24px;
+  }
+  .timeline h2 { font-size: 1.1rem; margin-bottom: 12px; }
+  .tl-item {
+    display: flex; gap: 12px; margin-bottom: 10px; font-size: 0.9rem;
+  }
+  .tl-week {
+    min-width: 70px; font-weight: 600; color: var(--accent);
+  }
+
+  /* Reference Panel */
+  .ref-toggle {
+    position: fixed; bottom: 24px; right: 24px; z-index: 1000;
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--accent); border: none; color: #fff;
+    font-size: 1.5rem; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.2s, background 0.2s;
+  }
+  .ref-toggle:hover { transform: scale(1.1); background: #79b8ff; }
+  .ref-toggle.active { background: var(--red); }
+
+  .ref-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5); z-index: 998; display: none;
+  }
+  .ref-overlay.show { display: block; }
+
+  .ref-panel {
+    position: fixed; top: 0; right: -520px; width: 500px; height: 100vh;
+    background: var(--bg); border-left: 1px solid var(--border);
+    z-index: 999; overflow-y: auto; transition: right 0.3s ease;
+    padding: 24px; padding-bottom: 80px;
+  }
+  .ref-panel.show { right: 0; }
+
+  .ref-panel h2 { font-size: 1.3rem; margin-bottom: 16px; position: sticky; top: 0;
+    background: var(--bg); padding: 0 0 12px 0; z-index: 1;
+    border-bottom: 1px solid var(--border);
+  }
+  .ref-panel .close-btn {
+    position: absolute; top: 20px; right: 20px; background: none;
+    border: 1px solid var(--border); color: var(--muted); width: 32px; height: 32px;
+    border-radius: 6px; cursor: pointer; font-size: 1.1rem; display: flex;
+    align-items: center; justify-content: center;
+  }
+  .ref-panel .close-btn:hover { color: var(--text); border-color: var(--text); }
+
+  .ref-section { margin-bottom: 20px; }
+  .ref-section h3 {
+    font-size: 0.9rem; color: var(--accent); margin-bottom: 10px;
+    padding-bottom: 6px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .ref-section h3 .icon { font-size: 1.1rem; }
+  .ref-item {
+    display: flex; gap: 10px; padding: 8px 12px; margin-bottom: 6px;
+    background: var(--card); border-radius: 8px; border: 1px solid var(--border);
+    font-size: 0.85rem; align-items: flex-start; transition: border-color 0.2s;
+  }
+  .ref-item:hover { border-color: var(--accent); }
+  .ref-item a {
+    color: var(--accent); text-decoration: none; font-weight: 600;
+    word-break: break-word;
+  }
+  .ref-item a:hover { text-decoration: underline; }
+  .ref-item .ref-desc { color: var(--muted); font-size: 0.8rem; margin-top: 2px; }
+  .ref-item .ref-tag {
+    font-size: 0.65rem; padding: 2px 6px; border-radius: 4px;
+    font-weight: 600; white-space: nowrap; flex-shrink: 0; margin-top: 2px;
+  }
+  .ref-tag-book { background: rgba(188,140,255,0.15); color: var(--purple); }
+  .ref-tag-course { background: rgba(63,185,80,0.15); color: var(--green); }
+  .ref-tag-practice { background: rgba(88,166,255,0.15); color: var(--accent); }
+  .ref-tag-youtube { background: rgba(248,81,73,0.15); color: var(--red); }
+  .ref-tag-interview { background: rgba(240,136,62,0.15); color: var(--orange); }
+  .ref-tag-cheatsheet { background: rgba(210,153,34,0.15); color: var(--yellow); }
+
+  .ref-search {
+    width: 100%; padding: 10px 14px; background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 0.9rem; margin-bottom: 16px;
+    outline: none;
+  }
+  .ref-search:focus { border-color: var(--accent); }
+  .ref-search::placeholder { color: var(--muted); }
+
+  .ref-week-map { margin-bottom: 20px; }
+  .ref-week-map h3 { margin-bottom: 8px; }
+  .rwm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .rwm-item {
+    background: var(--card); border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 10px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;
+    position: relative;
+  }
+  .rwm-item:hover { border-color: var(--accent); background: rgba(88,166,255,0.05); }
+  .rwm-item.active { border-color: var(--accent); background: rgba(88,166,255,0.12);
+    box-shadow: 0 0 0 1px var(--accent); }
+  .rwm-item .rwm-week { font-weight: 600; color: var(--accent); font-size: 0.75rem; }
+  .rwm-item .rwm-res { color: var(--text); margin-top: 2px; }
+  .rwm-item .rwm-hint { color: var(--muted); font-size: 0.7rem; margin-top: 4px; font-style: italic; }
+  .rwm-item .rwm-arrow { position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    color: var(--muted); font-size: 0.9rem; }
+  .rwm-item.active .rwm-arrow { color: var(--accent); }
+  .ref-filter-banner {
+    background: rgba(88,166,255,0.1); border: 1px solid var(--accent); border-radius: 8px;
+    padding: 8px 12px; margin-bottom: 12px; display: none; font-size: 0.85rem;
+    justify-content: space-between; align-items: center;
+  }
+  .ref-filter-banner.show { display: flex; }
+  .ref-filter-banner .clear-filter {
+    background: none; border: 1px solid var(--accent); color: var(--accent);
+    padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;
+  }
+  .ref-filter-banner .clear-filter:hover { background: rgba(88,166,255,0.15); }
+
+  @media (max-width: 600px) {
+    .ref-panel { width: 100%; right: -100%; }
+  }
+
+  @media (max-width: 600px) {
+    body { padding: 12px; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .week-progress .bar { width: 60px; }
+    .tabs { gap: 2px; }
+    .tab { padding: 6px 10px; font-size: 0.8rem; }
+  }
+
+  @media print {
+    body { background: #fff; color: #000; }
+    .btn, .tabs, .notes-area { display: none; }
+    .week-body { display: block !important; }
+    .stat-card { border: 1px solid #ccc; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header-row">
+  <div>
+    <h1>12-Week Interview Prep Tracker</h1>
+    <div class="subtitle">Senior Go Backend Engineer | India | Start: Mon, Mar 30, 2026</div>
+  </div>
+  <div class="actions">
+    <button class="btn btn-export" onclick="exportData()">Export JSON</button>
+    <button class="btn" onclick="document.getElementById('importFile').click()">Import JSON</button>
+    <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)">
+    <button class="btn btn-danger" onclick="resetAll()">Reset All</button>
+  </div>
+</div>
+
+<div class="streak" id="streakBar">
+  <div><div class="streak-num" id="streakNum">0</div><div class="streak-label">day streak</div></div>
+  <div class="streak-dots" id="streakDots"></div>
+</div>
+
+<div class="overall">
+  <h2>Overall Progress</h2>
+  <div class="stats-grid">
+    <div class="stat-card c-blue">
+      <div class="num" id="statDsa">0/63</div>
+      <div class="label">DSA Problems</div>
+      <div class="bar"><div class="bar-fill" id="barDsa" style="width:0%"></div></div>
+    </div>
+    <div class="stat-card c-yellow">
+      <div class="num" id="statMc">0/9</div>
+      <div class="label">Machine Coding</div>
+      <div class="bar"><div class="bar-fill" id="barMc" style="width:0%"></div></div>
+    </div>
+    <div class="stat-card c-purple">
+      <div class="num" id="statLld">0/7</div>
+      <div class="label">LLD Sessions</div>
+      <div class="bar"><div class="bar-fill" id="barLld" style="width:0%"></div></div>
+    </div>
+    <div class="stat-card c-orange">
+      <div class="num" id="statHld">0/12</div>
+      <div class="label">HLD Designs</div>
+      <div class="bar"><div class="bar-fill" id="barHld" style="width:0%"></div></div>
+    </div>
+    <div class="stat-card c-green">
+      <div class="num" id="statTotal">0%</div>
+      <div class="label">Total Tasks Done</div>
+      <div class="bar"><div class="bar-fill" id="barTotal" style="width:0%"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Daily Schedule -->
+<div class="schedule-card">
+  <h2>&#9200; Daily Study Schedule</h2>
+  <div class="schedule-grid">
+    <div class="sg-cell sg-header"></div>
+    <div class="sg-cell sg-header">Mon — Fri</div>
+    <div class="sg-cell sg-header">Sat — Sun</div>
+
+    <div class="sg-cell sg-slot">Morning<span class="sg-time">1.5 hr</span></div>
+    <div class="sg-cell">DSA — 2 problems in Go</div>
+    <div class="sg-cell">System Design — 1 full HLD design (45 min timed)</div>
+
+    <div class="sg-cell sg-slot">Evening<span class="sg-time">2 hr</span></div>
+    <div class="sg-cell">Topic Study + Go Practice</div>
+    <div class="sg-cell">Machine Coding / LLD Practice (timed 60-90 min)</div>
+
+    <div class="sg-cell sg-slot">Weekend Extra<span class="sg-time">1.5 hr</span></div>
+    <div class="sg-cell" style="color:var(--muted)">—</div>
+    <div class="sg-cell">Review weak areas + consolidate notes</div>
+  </div>
+  <div class="sg-total">
+    <div class="sg-total-item"><span class="sg-t-num sg-t-blue">3.5</span> hrs/weekday</div>
+    <div class="sg-total-item"><span class="sg-t-num sg-t-purple">5.5</span> hrs/weekend day</div>
+    <div class="sg-total-item"><span class="sg-t-num sg-t-green">~28.5</span> hrs/week total</div>
+    <div class="sg-total-item"><span class="sg-t-num sg-t-green">~342</span> hrs over 12 weeks</div>
+  </div>
+</div>
+
+<div class="tabs" id="tabs"></div>
+<div id="phasesContainer"></div>
+
+<div class="timeline">
+  <h2>When to Start Applying</h2>
+  <div class="tl-item"><span class="tl-week">Week 8-9</span> Tier-2 companies (practice interviews)</div>
+  <div class="tl-item"><span class="tl-week">Week 10-11</span> Tier-1 targets (Razorpay, Flipkart, Swiggy)</div>
+  <div class="tl-item"><span class="tl-week">Week 12+</span> FAANG India / MNCs (Google, Amazon, Uber, Atlassian)</div>
+</div>
+
+<!-- Floating Reference Button -->
+<button class="ref-toggle" id="refToggle" onclick="toggleRef()" title="Quick References">&#128218;</button>
+<div class="ref-overlay" id="refOverlay" onclick="toggleRef()"></div>
+
+<!-- Reference Panel -->
+<div class="ref-panel" id="refPanel">
+  <button class="close-btn" onclick="toggleRef()">&#10005;</button>
+  <h2>Quick References</h2>
+  <input class="ref-search" type="text" id="refSearch" placeholder="Search resources... (e.g. system design, kafka, leetcode)" oninput="filterRefs(this.value)">
+
+  <!-- Week-wise what to use -->
+  <div class="ref-section ref-week-map">
+    <h3><span class="icon">&#128197;</span> Click a Week to See Its Resources</h3>
+    <div class="rwm-grid">
+      <div class="rwm-item" onclick="filterByWeek('w1-2',this)"><div class="rwm-week">Week 1-2</div><div class="rwm-res">Go Deep Dive + DSA Warm-up + Testing</div><span class="rwm-arrow">&#8594;</span></div>
+      <div class="rwm-item" onclick="filterByWeek('w3-4',this)"><div class="rwm-week">Week 3-4</div><div class="rwm-res">DSA Trees/Graphs + LLD Fundamentals + Machine Coding</div><span class="rwm-arrow">&#8594;</span></div>
+      <div class="rwm-item" onclick="filterByWeek('w5',this)"><div class="rwm-week">Week 5</div><div class="rwm-res">Machine Coding Mastery + REST/gRPC APIs</div><span class="rwm-arrow">&#8594;</span></div>
+      <div class="rwm-item" onclick="filterByWeek('w6-7',this)"><div class="rwm-week">Week 6-7</div><div class="rwm-res">System Design (HLD) + Databases Deep Dive</div><span class="rwm-arrow">&#8594;</span></div>
+      <div class="rwm-item" onclick="filterByWeek('w8',this)"><div class="rwm-week">Week 8</div><div class="rwm-res">DSA DP/Tries + Machine Coding #2</div><span class="rwm-arrow">&#8594;</span></div>
+      <div class="rwm-item" onclick="filterByWeek('w9',this)"><div class="rwm-week">Week 9</div><div class="rwm-res">Kafka + Docker + Kubernetes + CI/CD</div><span class="rwm-arrow">&#8594;</span></div>
+      <div class="rwm-item" onclick="filterByWeek('w10',this)"><div class="rwm-week">Week 10</div><div class="rwm-res">AWS + Observability + HLD Payment/PubSub/Cache</div><span class="rwm-arrow">&#8594;</span></div>
+      <div class="rwm-item" onclick="filterByWeek('w11-12',this)"><div class="rwm-week">Week 11-12</div><div class="rwm-res">Behavioral + Mock Interviews + Final Review</div><span class="rwm-arrow">&#8594;</span></div>
+    </div>
+  </div>
+  <div class="ref-filter-banner" id="refFilterBanner">
+    <span id="refFilterLabel">Showing resources for: <strong></strong></span>
+    <button class="clear-filter" onclick="clearWeekFilter()">Show All</button>
+  </div>
+
+  <!-- Books -->
+  <div class="ref-section" data-ref-section>
+    <h3><span class="icon">&#128214;</span> Books (Must Read)</h3>
+    <div class="ref-item" data-keywords="system design hld distributed">
+      <span class="ref-tag ref-tag-book">P1</span>
+      <div>
+        <div><strong>System Design Interview Vol 1 & 2</strong> — Alex Xu</div>
+        <div class="ref-desc">HLD bible. Covers 80% of designs asked in interviews. URL Shortener, Rate Limiter, Chat, Notification System, etc.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="distributed systems database replication sharding transactions consensus">
+      <span class="ref-tag ref-tag-book">P2</span>
+      <div>
+        <div><strong>Designing Data-Intensive Applications</strong> — Martin Kleppmann</div>
+        <div class="ref-desc">Deep distributed systems understanding. Ch 5 (Replication), Ch 6 (Partitioning), Ch 7 (Transactions) are critical.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="go golang concurrency goroutines channels">
+      <span class="ref-tag ref-tag-book">P3</span>
+      <div>
+        <div><strong>The Go Programming Language</strong> — Donovan & Kernighan</div>
+        <div class="ref-desc">Go mastery. Ch 8 (Goroutines & Channels), Ch 9 (Concurrency with Shared Variables) are critical.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="go golang concurrency goroutines channels patterns worker pool pipeline">
+      <span class="ref-tag ref-tag-book">P4</span>
+      <div>
+        <div><strong>Concurrency in Go</strong> — Katherine Cox-Buday</div>
+        <div class="ref-desc">Go concurrency patterns: pipelines, fan-out/fan-in, heartbeats, rate limiting, error propagation.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="lld design patterns solid factory strategy observer">
+      <span class="ref-tag ref-tag-book">P5</span>
+      <div>
+        <div><strong>Head First Design Patterns</strong></div>
+        <div class="ref-desc">LLD foundation. Learn concepts, then translate to Go interfaces + structs.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="microservices architecture integration api">
+      <span class="ref-tag ref-tag-book">P6</span>
+      <div>
+        <div><strong>Building Microservices</strong> — Sam Newman (2nd ed)</div>
+        <div class="ref-desc">Microservices architecture. Ch 4 (Integration) especially relevant for API design week.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Online Courses -->
+  <div class="ref-section" data-ref-section>
+    <h3><span class="icon">&#127891;</span> Online Courses</h3>
+    <div class="ref-item" data-keywords="dsa algorithm data structure leetcode patterns">
+      <span class="ref-tag ref-tag-course">DSA</span>
+      <div>
+        <a href="https://neetcode.io/roadmap" target="_blank">NeetCode.io Roadmap</a>
+        <div class="ref-desc">Structured DSA roadmap with video solutions. Follow in order. Solve everything in Go.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="system design hld architecture distributed">
+      <span class="ref-tag ref-tag-course">HLD</span>
+      <div>
+        <a href="https://bytebytego.com/" target="_blank">ByteByteGo — Alex Xu</a>
+        <div class="ref-desc">Visual system design. Newsletter + course. Best for quick HLD concept review.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="system design hld grokking architecture">
+      <span class="ref-tag ref-tag-course">HLD</span>
+      <div>
+        <a href="https://www.educative.io/courses/grokking-the-system-design-interview" target="_blank">Educative: Grokking System Design</a>
+        <div class="ref-desc">Interactive scenario-based HLD course. Great for structured practice.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="go golang concurrency goroutines channels advanced">
+      <span class="ref-tag ref-tag-course">GO</span>
+      <div>
+        <a href="https://www.educative.io/" target="_blank">Educative: Mastering Concurrency in Go</a>
+        <div class="ref-desc">Deep Go concurrency patterns — goroutine orchestration, worker pools, pipelines.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="kubernetes docker terraform devops infrastructure cicd">
+      <span class="ref-tag ref-tag-course">INFRA</span>
+      <div>
+        <a href="https://kodekloud.com/" target="_blank">KodeKloud</a>
+        <div class="ref-desc">Hands-on labs for Kubernetes, Docker, Terraform, CI/CD. Best for infrastructure week.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="go golang advanced production patterns">
+      <span class="ref-tag ref-tag-course">GO</span>
+      <div>
+        <a href="https://www.ardanlabs.com/" target="_blank">Ardan Labs Ultimate Go</a>
+        <div class="ref-desc">Advanced Go — production patterns, mechanical sympathy, performance.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="go golang tour basics concurrency">
+      <span class="ref-tag ref-tag-course">GO</span>
+      <div>
+        <a href="https://tour.ardanlabs.com/" target="_blank">Ardan Labs Go Tour</a>
+        <div class="ref-desc">Free interactive Go tour. Great for Week 1 warm-up.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="behavioral star stories interview soft skills">
+      <span class="ref-tag ref-tag-course">BEHAV</span>
+      <div>
+        <a href="https://www.educative.io/" target="_blank">Educative: Grokking the Behavioral Interview</a>
+        <div class="ref-desc">STAR story framework, common questions, structured prep for HM rounds.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Practice Platforms -->
+  <div class="ref-section" data-ref-section>
+    <h3><span class="icon">&#9997;</span> Practice Platforms</h3>
+    <div class="ref-item" data-keywords="dsa algorithm leetcode problems coding">
+      <span class="ref-tag ref-tag-practice">DSA</span>
+      <div>
+        <a href="https://leetcode.com/" target="_blank">LeetCode</a>
+        <div class="ref-desc">Solve all DSA problems in Go. Use for timed practice sessions.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="dsa patterns neetcode curated">
+      <span class="ref-tag ref-tag-practice">DSA</span>
+      <div>
+        <a href="https://neetcode.io/" target="_blank">NeetCode</a>
+        <div class="ref-desc">Curated 150 problems by pattern. Better than random LeetCode grinding.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="machine coding lld india flipkart swiggy uber">
+      <span class="ref-tag ref-tag-practice">MC</span>
+      <div>
+        <a href="https://workat.tech/machine-coding" target="_blank">workat.tech — Machine Coding</a>
+        <div class="ref-desc">India-focused machine coding problems. Parking Lot, Snake & Ladder, Splitwise, etc.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="machine coding lld github problems india">
+      <span class="ref-tag ref-tag-practice">MC</span>
+      <div>
+        <a href="https://github.com/lavakumarThatisetti/Machine-Coding-Round" target="_blank">Machine Coding GitHub Repo</a>
+        <div class="ref-desc">Collection of machine coding problems + solutions. India-interview focused.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="lld low level design solid patterns">
+      <span class="ref-tag ref-tag-practice">LLD</span>
+      <div>
+        <a href="https://github.com/ashishps1/awesome-low-level-design" target="_blank">awesome-low-level-design (GitHub)</a>
+        <div class="ref-desc">Comprehensive LLD problem collection with solutions. Parking Lot, Elevator, BookMyShow, etc.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="lld low level design types interview">
+      <span class="ref-tag ref-tag-practice">LLD</span>
+      <div>
+        <a href="https://algomaster.io/learn/lld/lld-interview-types" target="_blank">AlgoMaster — LLD Interview Types</a>
+        <div class="ref-desc">Categorized LLD problems: games, products, technical systems. Evaluation criteria explained.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="design patterns solid refactoring go">
+      <span class="ref-tag ref-tag-practice">LLD</span>
+      <div>
+        <a href="https://refactoring.guru/design-patterns" target="_blank">Refactoring.guru — Design Patterns</a>
+        <div class="ref-desc">Visual design patterns with code examples. Learn Factory, Strategy, Observer, State, etc.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="mock interview practice free">
+      <span class="ref-tag ref-tag-practice">MOCK</span>
+      <div>
+        <a href="https://www.pramp.com/" target="_blank">Pramp — Free Mock Interviews</a>
+        <div class="ref-desc">Peer-to-peer mock interviews. DSA, system design, behavioral. Free.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="mock interview real engineers paid">
+      <span class="ref-tag ref-tag-practice">MOCK</span>
+      <div>
+        <a href="https://interviewing.io/" target="_blank">Interviewing.io</a>
+        <div class="ref-desc">Mock interviews with real FAANG engineers. Anonymous. Paid but high quality.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="dsa system design geeksforgeeks india">
+      <span class="ref-tag ref-tag-practice">DSA</span>
+      <div>
+        <a href="https://www.geeksforgeeks.org/" target="_blank">GeeksforGeeks</a>
+        <div class="ref-desc">DSA + System Design. Company-specific interview questions. India-focused.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="docker go golang containerization official">
+      <span class="ref-tag ref-tag-practice">INFRA</span>
+      <div>
+        <a href="https://docs.docker.com/language/golang/" target="_blank">Docker Official Go Guide</a>
+        <div class="ref-desc">Official Docker guide for Go apps. Multi-stage builds, best practices.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="aws cloud architecture labs hands-on">
+      <span class="ref-tag ref-tag-practice">INFRA</span>
+      <div>
+        <a href="https://www.wellarchitectedlabs.com/" target="_blank">AWS Well-Architected Labs</a>
+        <div class="ref-desc">Hands-on AWS labs. Great for Week 10 cloud deep dive.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- YouTube Channels -->
+  <div class="ref-section" data-ref-section>
+    <h3><span class="icon">&#9658;</span> YouTube Channels</h3>
+    <div class="ref-item" data-keywords="dsa patterns solutions neetcode video">
+      <span class="ref-tag ref-tag-youtube">DSA</span>
+      <div><a href="https://www.youtube.com/@NeetCode" target="_blank">NeetCode</a><div class="ref-desc">DSA patterns + step-by-step solutions</div></div>
+    </div>
+    <div class="ref-item" data-keywords="system design hld architecture bytebytego visual">
+      <span class="ref-tag ref-tag-youtube">HLD</span>
+      <div><a href="https://www.youtube.com/@ByteByteGo" target="_blank">ByteByteGo</a><div class="ref-desc">System design visuals + animations. Great for HLD review.</div></div>
+    </div>
+    <div class="ref-item" data-keywords="system design hld india gaurav sen">
+      <span class="ref-tag ref-tag-youtube">HLD</span>
+      <div><a href="https://www.youtube.com/@gaborsen" target="_blank">Gaurav Sen</a><div class="ref-desc">System design with Indian context. Popular for HLD prep.</div></div>
+    </div>
+    <div class="ref-item" data-keywords="lld machine coding india sudocode design">
+      <span class="ref-tag ref-tag-youtube">LLD</span>
+      <div><a href="https://www.youtube.com/@sudocode" target="_blank">Sudocode</a><div class="ref-desc">LLD + Machine Coding walkthroughs. Indian context.</div></div>
+    </div>
+    <div class="ref-item" data-keywords="system design hld india narendra tech dummies">
+      <span class="ref-tag ref-tag-youtube">HLD</span>
+      <div><a href="https://www.youtube.com/@TechDummiesNaworkerendraL" target="_blank">Tech Dummies — Narendra L</a><div class="ref-desc">System design deep dives. Indian context.</div></div>
+    </div>
+    <div class="ref-item" data-keywords="lld low level design india hindi shreyansh concept coding">
+      <span class="ref-tag ref-tag-youtube">LLD</span>
+      <div><a href="https://www.youtube.com/@ConceptandCoding" target="_blank">Concept && Coding (Shreyansh Jain)</a><div class="ref-desc">LLD deep dives in Hindi. Parking Lot, Elevator, BookMyShow, etc.</div></div>
+    </div>
+    <div class="ref-item" data-keywords="lld machine coding algomaster design patterns">
+      <span class="ref-tag ref-tag-youtube">LLD</span>
+      <div><a href="https://www.youtube.com/@AlgoMaster" target="_blank">AlgoMaster</a><div class="ref-desc">LLD + Machine Coding problems with clean code walkthroughs.</div></div>
+    </div>
+  </div>
+
+  <!-- Interview Experiences -->
+  <div class="ref-section" data-ref-section>
+    <h3><span class="icon">&#128172;</span> Real Interview Experiences (India)</h3>
+    <div class="ref-item" data-keywords="razorpay interview experience machine coding system design">
+      <span class="ref-tag ref-tag-interview">RAZORPAY</span>
+      <div>
+        <a href="https://leetcode.com/discuss/interview-experience/6229095/Razorpay-or-Senior-Software-Engineer-or-Bangalore-or-October-2024-Offer/" target="_blank">Razorpay SSE — Oct 2024 (Offer)</a>
+        <div class="ref-desc">3 rounds: Machine Coding (mini Git), System Design (URL Shortener), HM. Got offer.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="razorpay interview experience system design notification">
+      <span class="ref-tag ref-tag-interview">RAZORPAY</span>
+      <div>
+        <a href="https://leetcode.com/discuss/interview-experience/5169477/Razorpay-or-Senior-Software-Engineer-or-Bangalore/" target="_blank">Razorpay SSE — Apr 2024 (Rejected)</a>
+        <div class="ref-desc">3 rounds: System Design (Notification System), Machine Coding (Rating Service), HM. Rejected on SD — missed SLA.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="senior backend go golang interview educative preparation">
+      <span class="ref-tag ref-tag-interview">GO</span>
+      <div>
+        <a href="https://dev.to/devflex-pro/how-i-passed-my-first-senior-backend-interview-go-using-educative-35h1" target="_blank">How I Passed My First Senior Backend Interview (Go)</a>
+        <div class="ref-desc">Prep strategy: 1 system design + 1 deep-dive daily. Used Grokking SD + Concurrency in Go.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="flipkart swiggy amazon interview rounds compilation india">
+      <span class="ref-tag ref-tag-interview">MULTIPLE</span>
+      <div>
+        <a href="https://gist.github.com/idontknowjs/0f0e2cb8a161c63662c63b1cff0b70fa" target="_blank">Interview Rounds Compilation (GitHub Gist)</a>
+        <div class="ref-desc">Swiggy, Flipkart, Amazon, Dream11, Meesho, Razorpay — all rounds, questions, topics.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="interview experience glassdoor india swiggy engineer">
+      <span class="ref-tag ref-tag-interview">SWIGGY</span>
+      <div>
+        <a href="https://www.glassdoor.co.in/Interview/Swiggy-Software-Engineer-Interview-Questions-EI_IE952680.0,6_KO7,24.htm" target="_blank">Swiggy Engineer Interviews — Glassdoor</a>
+        <div class="ref-desc">Round-by-round Swiggy interview details. DSA + Machine Coding + HM.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="razorpay interview glassdoor senior">
+      <span class="ref-tag ref-tag-interview">RAZORPAY</span>
+      <div>
+        <a href="https://www.glassdoor.co.in/Interview/Razorpay-Senior-Software-Engineer-Interview-Questions-EI_IE1146550.0,8_KO9,33.htm" target="_blank">Razorpay SSE Interviews — Glassdoor</a>
+        <div class="ref-desc">Multiple Razorpay SSE interview experiences with round details.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="leetcode discuss interview experience india">
+      <span class="ref-tag ref-tag-interview">ALL</span>
+      <div>
+        <a href="https://leetcode.com/discuss/interview-experience/" target="_blank">LeetCode Discuss — Interview Experiences</a>
+        <div class="ref-desc">Search "Razorpay", "Flipkart", "Swiggy", "PhonePe" for Indian company experiences.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="zerodha interview backend questions">
+      <span class="ref-tag ref-tag-interview">ZERODHA</span>
+      <div>
+        <a href="https://prepfully.com/interview-questions/zerodha/backend-engineer" target="_blank">Zerodha Backend Engineer — Prepfully</a>
+        <div class="ref-desc">Zerodha-specific interview question bank for backend engineers.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Reference Cheat Sheets -->
+  <div class="ref-section" data-ref-section>
+    <h3><span class="icon">&#128221;</span> Cheat Sheets & Quick Refs</h3>
+    <div class="ref-item" data-keywords="go golang interview questions 100 turing">
+      <span class="ref-tag ref-tag-cheatsheet">GO</span>
+      <div>
+        <a href="https://www.turing.com/interview-questions/golang" target="_blank">100+ Golang Interview Questions — Turing</a>
+        <div class="ref-desc">Comprehensive Go interview Q&A. Concurrency, error handling, interfaces, generics.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="go golang interview questions github devinterview">
+      <span class="ref-tag ref-tag-cheatsheet">GO</span>
+      <div>
+        <a href="https://github.com/Devinterview-io/golang-interview-questions" target="_blank">Golang Interview Questions — GitHub</a>
+        <div class="ref-desc">Community-maintained Go interview prep. Updated for 2026.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="dsa top 50 100 questions patterns">
+      <span class="ref-tag ref-tag-cheatsheet">DSA</span>
+      <div>
+        <a href="https://www.geeksforgeeks.org/dsa/top-100-data-structure-and-algorithms-dsa-interview-questions-topic-wise/" target="_blank">Top 100 DSA Questions — GeeksforGeeks</a>
+        <div class="ref-desc">Topic-wise DSA questions. Arrays, Trees, Graphs, DP — all covered.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="dsa 15 essential patterns leetcode">
+      <span class="ref-tag ref-tag-cheatsheet">DSA</span>
+      <div>
+        <a href="https://leetcode.com/discuss/post/7347258/15-essential-dsa-patterns-for-tech-inter-nxem/" target="_blank">15 Essential DSA Patterns — LeetCode</a>
+        <div class="ref-desc">Sliding Window, Two Pointers, Binary Search, BFS/DFS, DP, Heap, etc.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="backend interview preparation sheet master">
+      <span class="ref-tag ref-tag-cheatsheet">ALL</span>
+      <div>
+        <a href="https://newsletter.theskilledcoder.com/p/backend-master-interview-preparation" target="_blank">Backend Master Interview Prep Sheet</a>
+        <div class="ref-desc">Complete backend prep: 25 DSA problems, HLD topics, LLD patterns, SOLID, all in one.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="lld low level design interview blog gagandeep">
+      <span class="ref-tag ref-tag-cheatsheet">LLD</span>
+      <div>
+        <a href="https://gagan93.me/blog/2024/05/17/low-level-design-interviews.html" target="_blank">LLD Interviews Guide — Gagandeep Singh</a>
+        <div class="ref-desc">Types of LLD interviews, evaluation criteria, step-by-step approach. From a Staff Engineer (9 YoE).</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="observability go golang prometheus grafana opentelemetry 2025">
+      <span class="ref-tag ref-tag-cheatsheet">INFRA</span>
+      <div>
+        <a href="https://quesma.com/blog/observability-in-go-what-real-engineers-are-saying-in-2025/" target="_blank">Observability in Go — 2025 Engineer Survey</a>
+        <div class="ref-desc">What real Go engineers use: Prometheus, OTEL, Jaeger, Loki. Pain points and solutions.</div>
+      </div>
+    </div>
+    <div class="ref-item" data-keywords="system design top 10 questions sde interview">
+      <span class="ref-tag ref-tag-cheatsheet">HLD</span>
+      <div>
+        <a href="https://getsdeready.com/top-10-system-design-questions-for-sde-interviews/" target="_blank">Top 10 System Design Questions for SDE</a>
+        <div class="ref-desc">Most commonly asked HLD questions: URL Shortener, Rate Limiter, Chat, etc.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Job Portals -->
+  <div class="ref-section" data-ref-section>
+    <h3><span class="icon">&#128188;</span> Job Portals (India)</h3>
+    <div class="ref-item" data-keywords="naukri jobs india golang">
+      <span class="ref-tag ref-tag-practice">JOBS</span>
+      <div><a href="https://www.naukri.com/golang-developer-jobs" target="_blank">Naukri.com — Golang Jobs</a><div class="ref-desc">10,400+ Go jobs in Bangalore. Set alerts for Senior Golang.</div></div>
+    </div>
+    <div class="ref-item" data-keywords="linkedin india golang jobs senior">
+      <span class="ref-tag ref-tag-practice">JOBS</span>
+      <div><a href="https://in.linkedin.com/jobs/senior-golang-developer-jobs" target="_blank">LinkedIn India — Senior Golang</a><div class="ref-desc">367+ Senior Golang Developer jobs in India.</div></div>
+    </div>
+    <div class="ref-item" data-keywords="instahyre golang jobs india premium">
+      <span class="ref-tag ref-tag-practice">JOBS</span>
+      <div><a href="https://www.instahyre.com/golang-jobs/" target="_blank">Instahyre — Golang Jobs</a><div class="ref-desc">1,190+ Golang openings. Google, Amazon, Flipkart, Uber, Swiggy recruit here.</div></div>
+    </div>
+    <div class="ref-item" data-keywords="cutshort golang jobs india startup">
+      <span class="ref-tag ref-tag-practice">JOBS</span>
+      <div><a href="https://cutshort.io/jobs/golang-jobs" target="_blank">Cutshort — Golang Jobs</a><div class="ref-desc">50+ Golang jobs. Good for funded startup roles.</div></div>
+    </div>
+    <div class="ref-item" data-keywords="levels fyi salary india compensation">
+      <span class="ref-tag ref-tag-practice">SALARY</span>
+      <div><a href="https://www.levels.fyi/" target="_blank">Levels.fyi — Salary Data</a><div class="ref-desc">Razorpay SSE: 41 LPA, Flipkart SDE-3: 52 LPA. Verify comp before negotiating.</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Week-to-keyword mapping: which search terms match each week's resources
+const WEEK_KEYWORDS = {
+  'w1-2': ['go golang', 'concurrency goroutines', 'leetcode', 'dsa algorithm', 'ardan labs', 'go programming language', 'testing', 'golang interview questions', 'dsa patterns'],
+  'w3-4': ['neetcode', 'refactoring.guru', 'design patterns solid', 'lld low level', 'awesome-low-level', 'algomaster', 'workat.tech', 'machine coding', 'binary search', 'tree', 'head first', 'concept coding', 'sudocode'],
+  'w5': ['machine coding', 'building microservices', 'rest api', 'grpc', 'workat.tech', 'lavakumar', 'splitwise', 'elevator', 'snake'],
+  'w6-7': ['system design hld', 'alex xu', 'bytebytego', 'grokking system', 'ddia', 'designing data', 'kleppmann', 'replication', 'partitioning', 'transaction', 'postgresql', 'redis', 'mongodb', 'gaurav sen', 'tech dummies', 'razorpay interview', 'url shortener', 'notification', 'rate limiter', 'chat system', 'ticket booking', 'backend master'],
+  'w8': ['neetcode', 'dp', 'dynamic programming', 'trie', 'machine coding', 'concurrency in go', 'cox-buday', 'vending', 'car rental', 'version control', 'lavakumar', 'workat.tech'],
+  'w9': ['kubernetes', 'docker', 'kodekloud', 'cicd', 'kafka', 'infrastructure', 'helm', 'docker go guide'],
+  'w10': ['aws', 'cloud', 'well-architected', 'prometheus', 'grafana', 'observability', 'opentelemetry', 'quesma', 'payment', 'pub/sub', 'cache', 'system design hld', 'alex xu', 'bytebytego'],
+  'w11-12': ['behavioral', 'star stories', 'grokking behavioral', 'pramp', 'interviewing.io', 'mock interview', 'razorpay interview', 'swiggy interview', 'flipkart interview', 'leetcode discuss', 'glassdoor', 'prepfully', 'zerodha', 'interview experience', 'go golang interview questions', 'backend master'],
+};
+const WEEK_LABELS = {
+  'w1-2': 'Week 1-2: Go Deep Dive + DSA',
+  'w3-4': 'Week 3-4: DSA + LLD Fundamentals',
+  'w5': 'Week 5: Machine Coding + REST/gRPC',
+  'w6-7': 'Week 6-7: System Design (HLD) + Databases',
+  'w8': 'Week 8: DSA DP/Tries + Machine Coding #2',
+  'w9': 'Week 9: Kafka + Docker + K8s + CI/CD',
+  'w10': 'Week 10: AWS + Observability + HLD #3',
+  'w11-12': 'Week 11-12: Behavioral + Mocks',
+};
+
+let activeWeekFilter = null;
+
+function toggleRef() {
+  const panel = document.getElementById('refPanel');
+  const overlay = document.getElementById('refOverlay');
+  const btn = document.getElementById('refToggle');
+  panel.classList.toggle('show');
+  overlay.classList.toggle('show');
+  btn.classList.toggle('active');
+  if (panel.classList.contains('show')) {
+    document.getElementById('refSearch').focus();
+  }
+}
+
+function filterRefs(query) {
+  // If user types in search, clear week filter
+  if (query) clearWeekFilter(true);
+  const q = query.toLowerCase().trim();
+  document.querySelectorAll('.ref-item').forEach(item => {
+    if (!q) { item.style.display = ''; return; }
+    const text = (item.textContent + ' ' + (item.dataset.keywords || '')).toLowerCase();
+    item.style.display = text.includes(q) ? '' : 'none';
+  });
+  hidEmptySections();
+}
+
+function filterByWeek(weekKey, el) {
+  // Toggle: click same week again to clear
+  if (activeWeekFilter === weekKey) {
+    clearWeekFilter();
+    return;
+  }
+  activeWeekFilter = weekKey;
+
+  // Highlight active week item
+  document.querySelectorAll('.rwm-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+
+  // Show filter banner
+  const banner = document.getElementById('refFilterBanner');
+  banner.classList.add('show');
+  document.getElementById('refFilterLabel').innerHTML =
+    'Showing resources for: <strong>' + WEEK_LABELS[weekKey] + '</strong>';
+
+  // Clear search box
+  document.getElementById('refSearch').value = '';
+
+  // Filter ref-items: show only those matching any keyword for this week
+  const keywords = WEEK_KEYWORDS[weekKey] || [];
+  document.querySelectorAll('.ref-item').forEach(item => {
+    const text = (item.textContent + ' ' + (item.dataset.keywords || '')).toLowerCase();
+    const match = keywords.some(kw => {
+      // Check if ALL words in the keyword phrase are present
+      return kw.split(' ').every(word => text.includes(word));
+    });
+    item.style.display = match ? '' : 'none';
+  });
+  hidEmptySections();
+
+  // Scroll to first visible section below the week map
+  const firstVisible = document.querySelector('.ref-section[data-ref-section]:not([style*="display: none"])');
+  if (firstVisible) firstVisible.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function clearWeekFilter(keepSearch) {
+  activeWeekFilter = null;
+  document.querySelectorAll('.rwm-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('refFilterBanner').classList.remove('show');
+  if (!keepSearch) {
+    document.querySelectorAll('.ref-item').forEach(item => item.style.display = '');
+    document.querySelectorAll('.ref-section[data-ref-section]').forEach(sec => sec.style.display = '');
+  }
+}
+
+function hidEmptySections() {
+  document.querySelectorAll('.ref-section[data-ref-section]').forEach(sec => {
+    const items = sec.querySelectorAll('.ref-item');
+    const anyVisible = Array.from(items).some(i => i.style.display !== 'none');
+    sec.style.display = anyVisible ? '' : 'none';
+  });
+}
+
+// Keyboard shortcut: press 'r' to toggle reference panel (when not in input)
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'r' || e.key === 'R') {
+    e.preventDefault();
+    toggleRef();
+  }
+  // Escape closes the panel
+  if (e.key === 'Escape') {
+    const panel = document.getElementById('refPanel');
+    if (panel.classList.contains('show')) toggleRef();
+  }
+});
+</script>
+
+<script>
+const DATA = {
+  startDate: '2026-03-30',
+  phases: [
+    {
+      name: 'Phase 1: Foundation', weeks: [
+        {
+          name: 'Week 1: Go Deep Dive + DSA Warm-up', dates: 'Mar 30 - Apr 05',
+          days: [
+            { label: 'Monday, Mar 30', tasks: [
+              { text: 'DSA: Two Sum (Easy)', tag: 'dsa' },
+              { text: 'DSA: Valid Parentheses (Easy)', tag: 'dsa' },
+              { text: 'Go: Goroutines lifecycle — creation, scheduling, stack growth', tag: 'go' },
+              { text: 'Go: Channels — buffered vs unbuffered, directional, select', tag: 'go' },
+            ]},
+            { label: 'Tuesday, Mar 31', tasks: [
+              { text: 'DSA: Merge Two Sorted Lists (Easy)', tag: 'dsa' },
+              { text: 'DSA: 3Sum (Medium)', tag: 'dsa' },
+              { text: 'Go: sync — Mutex, RWMutex, WaitGroup, Once, Pool, Map', tag: 'go' },
+            ]},
+            { label: 'Wednesday, Apr 01', tasks: [
+              { text: 'DSA: Group Anagrams (Medium)', tag: 'dsa' },
+              { text: 'DSA: Product of Array Except Self (Medium)', tag: 'dsa' },
+              { text: 'Go: context — WithCancel, WithTimeout, WithValue, propagation', tag: 'go' },
+            ]},
+            { label: 'Thursday, Apr 02', tasks: [
+              { text: 'DSA: Sliding Window Maximum (Hard) — take your time', tag: 'dsa' },
+              { text: 'Go: Error handling — errors.Is, errors.As, sentinel, wrapping', tag: 'go' },
+              { text: 'Go: Generics — type constraints, type inference (Go 1.18+)', tag: 'go' },
+            ]},
+            { label: 'Friday, Apr 03', tasks: [
+              { text: 'DSA: Review/re-solve 2 hardest problems from this week', tag: 'dsa' },
+              { text: 'Go: defer, panic, recover — practical patterns', tag: 'go' },
+              { text: 'Go: Memory model — happens-before, race conditions', tag: 'go' },
+            ]},
+            { label: 'Saturday, Apr 04', tasks: [
+              { text: 'Go: Build a mini concurrent program using everything learned', tag: 'go' },
+              { text: 'DSA: 1 new Medium problem (NeetCode roadmap)', tag: 'dsa' },
+            ]},
+            { label: 'Sunday, Apr 05', tasks: [
+              { text: 'Weekly review: re-solve 2 weakest DSA problems', tag: 'dsa' },
+              { text: 'Write Week 1 summary notes', tag: 'go' },
+            ]},
+          ],
+          confidence: ['Go Concurrency', 'DSA Basics (Hashing, Two Pointers)']
+        },
+        {
+          name: 'Week 2: DSA Arrays/Strings/Sliding Window + Go Testing', dates: 'Apr 06 - Apr 12',
+          days: [
+            { label: 'Monday, Apr 06', tasks: [
+              { text: 'DSA: Longest Substring Without Repeating Characters (Medium)', tag: 'dsa' },
+              { text: 'DSA: Container With Most Water (Medium)', tag: 'dsa' },
+              { text: 'Go Testing: testing package, t.Run subtests, table-driven tests', tag: 'go' },
+            ]},
+            { label: 'Tuesday, Apr 07', tasks: [
+              { text: 'DSA: Minimum Window Substring (Hard)', tag: 'dsa' },
+              { text: 'DSA: Find All Anagrams in a String (Medium)', tag: 'dsa' },
+              { text: 'Go Testing: Benchmarking (testing.B), Fuzz testing (testing.F)', tag: 'go' },
+            ]},
+            { label: 'Wednesday, Apr 08', tasks: [
+              { text: 'DSA: Trapping Rain Water (Hard)', tag: 'dsa' },
+              { text: 'DSA: Rotate Image (Medium)', tag: 'dsa' },
+              { text: 'Go Tooling: Race detector, go vet, staticcheck, golangci-lint', tag: 'go' },
+            ]},
+            { label: 'Thursday, Apr 09', tasks: [
+              { text: 'DSA: Spiral Matrix (Medium)', tag: 'dsa' },
+              { text: 'DSA: Next Permutation (Medium)', tag: 'dsa' },
+              { text: 'Go Profiling: pprof — CPU, memory, goroutine profiling', tag: 'go' },
+            ]},
+            { label: 'Friday, Apr 10', tasks: [
+              { text: 'DSA: Review 2 hardest problems from this week', tag: 'dsa' },
+              { text: 'Go: Write benchmarks + profiles for a concurrent program', tag: 'go' },
+            ]},
+            { label: 'Saturday, Apr 11', tasks: [
+              { text: 'DSA: 2 new sliding window problems from NeetCode', tag: 'dsa' },
+              { text: 'Go: Build a small HTTP server with proper tests + benchmarks', tag: 'go' },
+            ]},
+            { label: 'Sunday, Apr 12', tasks: [
+              { text: 'Weekly review: re-solve 3 weakest DSA problems', tag: 'dsa' },
+              { text: 'Review all Go testing patterns, prepare cheat sheet', tag: 'go' },
+            ]},
+          ],
+          confidence: ['Sliding Window', 'Two Pointers', 'Go Testing & Profiling']
+        },
+        {
+          name: 'Week 3: DSA Binary Search/Stacks/Trees + LLD Fundamentals', dates: 'Apr 13 - Apr 19',
+          days: [
+            { label: 'Monday, Apr 13', tasks: [
+              { text: 'DSA: Search in Rotated Sorted Array (Medium)', tag: 'dsa' },
+              { text: 'DSA: Find First and Last Position (Medium)', tag: 'dsa' },
+              { text: 'LLD: SOLID Principles — SRP, OCP with Go examples', tag: 'lld' },
+            ]},
+            { label: 'Tuesday, Apr 14', tasks: [
+              { text: 'DSA: Split Array Largest Sum (Hard)', tag: 'dsa' },
+              { text: 'DSA: Largest Rectangle in Histogram (Hard)', tag: 'dsa' },
+              { text: 'LLD: SOLID — LSP, ISP, DIP + Go interface design', tag: 'lld' },
+            ]},
+            { label: 'Wednesday, Apr 15', tasks: [
+              { text: 'DSA: Daily Temperatures (Medium)', tag: 'dsa' },
+              { text: 'DSA: Binary Tree Level Order Traversal (Medium)', tag: 'dsa' },
+              { text: 'LLD Patterns: Factory, Builder, Singleton in Go', tag: 'lld' },
+            ]},
+            { label: 'Thursday, Apr 16', tasks: [
+              { text: 'DSA: Validate BST (Medium)', tag: 'dsa' },
+              { text: 'DSA: Lowest Common Ancestor (Medium)', tag: 'dsa' },
+              { text: 'DSA: Diameter of Binary Tree (Easy)', tag: 'dsa' },
+              { text: 'LLD Patterns: Strategy, Observer, State in Go', tag: 'lld' },
+            ]},
+            { label: 'Friday, Apr 17', tasks: [
+              { text: 'DSA: Construct BT from Inorder/Preorder (Medium)', tag: 'dsa' },
+              { text: 'DSA: Serialize/Deserialize Binary Tree (Hard)', tag: 'dsa' },
+              { text: 'LLD Patterns: Adapter, Decorator, Command in Go', tag: 'lld' },
+            ]},
+            { label: 'Saturday, Apr 18', tasks: [
+              { text: 'LLD: Study Parking Lot design (watch Concept && Coding)', tag: 'lld' },
+              { text: 'LLD: Sketch class diagrams + Go interfaces for Parking Lot', tag: 'lld' },
+            ]},
+            { label: 'Sunday, Apr 19', tasks: [
+              { text: 'DSA Review: re-solve 3 hardest tree/stack problems', tag: 'dsa' },
+              { text: 'LLD: Clean Architecture concepts + dependency rule', tag: 'lld' },
+            ]},
+          ],
+          confidence: ['Binary Search', 'Trees (DFS/BFS)', 'SOLID & Design Patterns']
+        },
+        {
+          name: 'Week 4: DSA Graphs/Heaps/Greedy + LLD Practice #1', dates: 'Apr 20 - Apr 26',
+          days: [
+            { label: 'Monday, Apr 20', tasks: [
+              { text: 'DSA: Number of Islands (Medium)', tag: 'dsa' },
+              { text: 'DSA: Clone Graph (Medium)', tag: 'dsa' },
+              { text: 'DSA: Course Schedule I (Medium)', tag: 'dsa' },
+              { text: 'DSA: Course Schedule II — topological sort (Medium)', tag: 'dsa' },
+            ]},
+            { label: 'Tuesday, Apr 21', tasks: [
+              { text: 'DSA: Word Ladder (Hard)', tag: 'dsa' },
+              { text: 'DSA: Merge K Sorted Lists (Hard)', tag: 'dsa' },
+              { text: 'DSA: Task Scheduler (Medium)', tag: 'dsa' },
+            ]},
+            { label: 'Wednesday, Apr 22', tasks: [
+              { text: 'DSA: Top K Frequent Elements (Medium)', tag: 'dsa' },
+              { text: 'DSA: Find Median from Data Stream (Hard)', tag: 'dsa' },
+              { text: 'DSA: Jump Game II (Medium)', tag: 'dsa' },
+              { text: 'DSA: Meeting Rooms II (Medium)', tag: 'dsa' },
+            ]},
+            { label: 'Thursday, Apr 23', tasks: [
+              { text: 'Machine Coding: Parking Lot System — TIMED 60 min in Go', tag: 'mc' },
+              { text: 'Review Parking Lot: SOLID check, identify violations, refactor', tag: 'mc' },
+            ]},
+            { label: 'Friday, Apr 24', tasks: [
+              { text: 'Machine Coding: TicTacToe Game — TIMED 60 min in Go', tag: 'mc' },
+              { text: 'Review TicTacToe: extensibility (NxN grid), edge cases', tag: 'mc' },
+            ]},
+            { label: 'Saturday, Apr 25', tasks: [
+              { text: 'LLD Marathon: LRU Cache — doubly-linked list + hashmap in Go', tag: 'lld' },
+              { text: 'LRU Cache: interface design, encapsulation, test cases', tag: 'lld' },
+            ]},
+            { label: 'Sunday, Apr 26', tasks: [
+              { text: 'DSA Review: re-solve 3 hardest graph/heap problems', tag: 'dsa' },
+              { text: 'PHASE 1 REVIEW: assess all topics, identify weak areas', tag: 'go' },
+            ]},
+          ],
+          confidence: ['Graphs (BFS/DFS)', 'Heaps', 'Machine Coding (finish in time?)']
+        },
+      ]
+    },
+    {
+      name: 'Phase 2: Core Skills', weeks: [
+        {
+          name: 'Week 5: Machine Coding Mastery + REST/gRPC', dates: 'Apr 27 - May 03',
+          days: [
+            { label: 'Monday, Apr 27', tasks: [
+              { text: 'REST API: HTTP methods, status codes, idempotency, versioning', tag: 'go' },
+              { text: 'Go HTTP: net/http, chi, gin — build a small REST API', tag: 'go' },
+            ]},
+            { label: 'Tuesday, Apr 28', tasks: [
+              { text: 'Machine Coding: Splitwise — TIMED 90 min', tag: 'mc' },
+              { text: 'Review Splitwise: settlement algorithm, extensibility', tag: 'mc' },
+            ]},
+            { label: 'Wednesday, Apr 29', tasks: [
+              { text: 'gRPC: proto3, unary/streaming RPCs, interceptors', tag: 'go' },
+              { text: 'gRPC: Build a Go gRPC service with gRPC-Gateway', tag: 'go' },
+            ]},
+            { label: 'Thursday, Apr 30', tasks: [
+              { text: 'Machine Coding: Snake & Ladder — TIMED 90 min', tag: 'mc' },
+              { text: 'Review: rules engine, multiplayer, extensibility', tag: 'mc' },
+            ]},
+            { label: 'Friday, May 01', tasks: [
+              { text: 'REST: Middleware patterns (auth, logging, rate limit, recovery)', tag: 'go' },
+              { text: 'REST: OpenAPI/Swagger generation for your Go API', tag: 'go' },
+            ]},
+            { label: 'Saturday, May 02', tasks: [
+              { text: 'Machine Coding: Elevator System — TIMED 90 min + review', tag: 'mc' },
+              { text: 'Evaluation: runs? clean? extensible? tests?', tag: 'mc' },
+            ]},
+            { label: 'Sunday, May 03', tasks: [
+              { text: 'Review all 3 machine coding solutions, refactor weakest', tag: 'mc' },
+              { text: 'gRPC vs REST decision framework — write comparison notes', tag: 'go' },
+            ]},
+          ],
+          confidence: ['Machine Coding (90 min)', 'REST API Design', 'gRPC']
+        },
+        {
+          name: 'Week 6: HLD Fundamentals + First 3 Designs', dates: 'May 04 - May 10',
+          days: [
+            { label: 'Monday, May 04', tasks: [
+              { text: 'HLD: Load balancing (L4/L7, round-robin, consistent hashing)', tag: 'hld' },
+              { text: 'HLD: Caching (cache-aside, write-through, write-behind, CDN)', tag: 'hld' },
+            ]},
+            { label: 'Tuesday, May 05', tasks: [
+              { text: 'HLD: DB replication (leader/follower), sharding, partitioning', tag: 'hld' },
+              { text: 'HLD: Message queues, CAP theorem, consistency models', tag: 'hld' },
+            ]},
+            { label: 'Wednesday, May 06', tasks: [
+              { text: 'HLD: Back-of-envelope estimation — practice 3 scenarios', tag: 'hld' },
+              { text: 'HLD DESIGN #1: URL Shortener — TIMED 45 min', tag: 'hld' },
+            ]},
+            { label: 'Thursday, May 07', tasks: [
+              { text: 'Review URL Shortener design, fill gaps', tag: 'hld' },
+              { text: 'HLD DESIGN #2: Rate Limiter — TIMED 45 min', tag: 'hld' },
+            ]},
+            { label: 'Friday, May 08', tasks: [
+              { text: 'Review Rate Limiter, token bucket vs sliding window', tag: 'hld' },
+              { text: 'Read: DDIA Ch 5 (Replication)', tag: 'hld' },
+            ]},
+            { label: 'Saturday, May 09', tasks: [
+              { text: 'HLD DESIGN #3: Notification System — TIMED 45 min + review', tag: 'hld' },
+              { text: 'Check: Did I mention SLAs? Auth? Failure handling?', tag: 'hld' },
+            ]},
+            { label: 'Sunday, May 10', tasks: [
+              { text: 'Re-practice: explain all 3 designs in 5 min each (voice record)', tag: 'hld' },
+              { text: 'Read: DDIA Ch 6 (Partitioning)', tag: 'hld' },
+            ]},
+          ],
+          confidence: ['System Design Framework', 'Back-of-Envelope Estimation', 'HLD Communication']
+        },
+        {
+          name: 'Week 7: HLD Next 3 Designs + Databases', dates: 'May 11 - May 17',
+          days: [
+            { label: 'Monday, May 11', tasks: [
+              { text: 'PostgreSQL: EXPLAIN ANALYZE, B-tree/GIN/GiST indexes', tag: 'infra' },
+              { text: 'PostgreSQL: Isolation levels, MVCC, deadlocks, PgBouncer', tag: 'infra' },
+            ]},
+            { label: 'Tuesday, May 12', tasks: [
+              { text: 'HLD DESIGN #4: Chat System (WhatsApp) — TIMED 45 min', tag: 'hld' },
+              { text: 'Go DB: pgx driver, sqlx, golang-migrate', tag: 'infra' },
+            ]},
+            { label: 'Wednesday, May 13', tasks: [
+              { text: 'Redis: data structures, TTL, eviction, cache patterns, Redlock', tag: 'infra' },
+              { text: 'Go Redis: go-redis library, pub/sub, streams', tag: 'infra' },
+            ]},
+            { label: 'Thursday, May 14', tasks: [
+              { text: 'HLD DESIGN #5: Ticket Booking (BookMyShow) — TIMED 45 min', tag: 'hld' },
+              { text: 'MongoDB: document modeling, aggregation, SQL vs NoSQL matrix', tag: 'infra' },
+            ]},
+            { label: 'Friday, May 15', tasks: [
+              { text: 'HLD DESIGN #6: E-commerce Order System — TIMED 45 min', tag: 'hld' },
+              { text: 'Read: DDIA Ch 7 (Transactions)', tag: 'hld' },
+            ]},
+            { label: 'Saturday, May 16', tasks: [
+              { text: 'Review all 3 new HLD designs — voice record 5 min each', tag: 'hld' },
+              { text: 'Build: Go service with PostgreSQL + Redis caching layer', tag: 'infra' },
+            ]},
+            { label: 'Sunday, May 17', tasks: [
+              { text: 'Re-explain all 6 HLD designs (quick 3 min each)', tag: 'hld' },
+              { text: 'Database decision framework notes (when SQL vs NoSQL vs Cache)', tag: 'infra' },
+            ]},
+          ],
+          confidence: ['PostgreSQL Deep', 'Redis Patterns', 'HLD (6 designs)']
+        },
+        {
+          name: 'Week 8: DSA DP/Tries + Machine Coding #2', dates: 'May 18 - May 24',
+          days: [
+            { label: 'Monday, May 18', tasks: [
+              { text: 'DSA: Climbing Stairs (Easy), House Robber I & II (Medium)', tag: 'dsa' },
+              { text: 'DSA: Longest Common Subsequence (Medium)', tag: 'dsa' },
+            ]},
+            { label: 'Tuesday, May 19', tasks: [
+              { text: 'DSA: Edit Distance (Medium), Coin Change (Medium)', tag: 'dsa' },
+              { text: 'DSA: Partition Equal Subset Sum (Medium)', tag: 'dsa' },
+            ]},
+            { label: 'Wednesday, May 20', tasks: [
+              { text: 'DSA: Word Break (Medium), Decode Ways (Medium)', tag: 'dsa' },
+              { text: 'DSA: Implement Trie (Medium), Add and Search Words (Medium)', tag: 'dsa' },
+            ]},
+            { label: 'Thursday, May 21', tasks: [
+              { text: 'DSA: Dijkstra - Network Delay Time (Medium)', tag: 'dsa' },
+              { text: 'Machine Coding: Vending Machine — TIMED 90 min', tag: 'mc' },
+            ]},
+            { label: 'Friday, May 22', tasks: [
+              { text: 'Machine Coding: Car Rental System — TIMED 90 min', tag: 'mc' },
+              { text: 'Review: state pattern, booking logic, pricing', tag: 'mc' },
+            ]},
+            { label: 'Saturday, May 23', tasks: [
+              { text: 'Machine Coding: Version Control (mini Git) — TIMED 90 min', tag: 'mc' },
+              { text: 'Review: commits, branches, rollback (asked at Razorpay)', tag: 'mc' },
+            ]},
+            { label: 'Sunday, May 24', tasks: [
+              { text: 'Full mock: 60 min machine coding + 45 min LLD discussion', tag: 'mc' },
+              { text: 'Self-review: finished? clean? extensible?', tag: 'lld' },
+            ]},
+          ],
+          confidence: ['Dynamic Programming', 'Trie', 'Machine Coding (speed)']
+        },
+      ]
+    },
+    {
+      name: 'Phase 3: Advanced', weeks: [
+        {
+          name: 'Week 9: Kafka + Docker + K8s + CI/CD', dates: 'May 25 - May 31',
+          days: [
+            { label: 'Monday, May 25', tasks: [
+              { text: 'Kafka: topics, partitions, consumer groups, offsets', tag: 'infra' },
+              { text: 'Kafka: exactly-once semantics, idempotent producers', tag: 'infra' },
+            ]},
+            { label: 'Tuesday, May 26', tasks: [
+              { text: 'Kafka: DLQ, retry strategies, Kafka vs RabbitMQ vs SQS', tag: 'infra' },
+              { text: 'Go Kafka: confluent-kafka-go, segmentio/kafka-go', tag: 'infra' },
+            ]},
+            { label: 'Wednesday, May 27', tasks: [
+              { text: 'Docker: multi-stage Go builds, distroless images, compose', tag: 'infra' },
+              { text: 'Docker: networking, volumes, secrets, image scanning', tag: 'infra' },
+            ]},
+            { label: 'Thursday, May 28', tasks: [
+              { text: 'K8s: Pods, Deployments, Services, ConfigMaps, Secrets', tag: 'infra' },
+              { text: 'K8s: HPA, resource limits, health probes, RBAC', tag: 'infra' },
+            ]},
+            { label: 'Friday, May 29', tasks: [
+              { text: 'K8s: Ingress, NetworkPolicies, Helm charts', tag: 'infra' },
+              { text: 'CI/CD: GitHub Actions for Go (lint, test, build, deploy)', tag: 'infra' },
+            ]},
+            { label: 'Saturday, May 30', tasks: [
+              { text: 'Hands-on: Dockerize Go service + deploy to local K8s (kind)', tag: 'infra' },
+              { text: 'Hands-on: Expose via Ingress + add Helm chart', tag: 'infra' },
+            ]},
+            { label: 'Sunday, May 31', tasks: [
+              { text: 'CI/CD: Blue/green, canary deployments — write notes', tag: 'infra' },
+              { text: 'Review: can you explain K8s architecture in 5 min?', tag: 'infra' },
+            ]},
+          ],
+          confidence: ['Kafka', 'Docker', 'Kubernetes', 'CI/CD']
+        },
+        {
+          name: 'Week 10: AWS + Observability + HLD #3', dates: 'Jun 01 - Jun 07',
+          days: [
+            { label: 'Monday, Jun 01', tasks: [
+              { text: 'AWS: EC2, ECS, EKS, Lambda — when to use which', tag: 'infra' },
+              { text: 'AWS: S3, RDS (PostgreSQL), DynamoDB, ElastiCache', tag: 'infra' },
+            ]},
+            { label: 'Tuesday, Jun 02', tasks: [
+              { text: 'AWS: SQS, SNS, EventBridge, MSK, VPC, ALB, Route 53', tag: 'infra' },
+              { text: 'AWS: IAM policies, roles, instance profiles', tag: 'infra' },
+            ]},
+            { label: 'Wednesday, Jun 03', tasks: [
+              { text: 'Observability: Prometheus PromQL, recording/alert rules', tag: 'infra' },
+              { text: 'Observability: Grafana dashboards, slog/zerolog/zap', tag: 'infra' },
+            ]},
+            { label: 'Thursday, Jun 04', tasks: [
+              { text: 'Observability: OpenTelemetry SDK, Jaeger, Go instrumentation', tag: 'infra' },
+              { text: 'HLD DESIGN #7: Payment System — TIMED 45 min', tag: 'hld' },
+            ]},
+            { label: 'Friday, Jun 05', tasks: [
+              { text: 'HLD DESIGN #8: Pub/Sub System — TIMED 45 min', tag: 'hld' },
+              { text: 'Review: fan-out, backpressure, reliability', tag: 'hld' },
+            ]},
+            { label: 'Saturday, Jun 06', tasks: [
+              { text: 'HLD DESIGN #9: Distributed Cache — TIMED 45 min', tag: 'hld' },
+              { text: 'Review: consistent hashing, replication, stampede', tag: 'hld' },
+            ]},
+            { label: 'Sunday, Jun 07', tasks: [
+              { text: 'Voice record: explain all 9 HLD designs (5 min each)', tag: 'hld' },
+              { text: 'AWS + Observability summary notes', tag: 'infra' },
+            ]},
+          ],
+          confidence: ['AWS Core Services', 'Observability Stack', 'HLD (9 designs)']
+        },
+        {
+          name: 'Week 11: Behavioral + Final Designs + Concurrency', dates: 'Jun 08 - Jun 14',
+          days: [
+            { label: 'Monday, Jun 08', tasks: [
+              { text: 'STAR Story #1: Most impactful project you led', tag: 'behavioral' },
+              { text: 'STAR Story #2: Critical production incident debugging', tag: 'behavioral' },
+              { text: 'Go: Implement worker pool with graceful shutdown', tag: 'go' },
+            ]},
+            { label: 'Tuesday, Jun 09', tasks: [
+              { text: 'STAR Story #3: Team conflict and resolution', tag: 'behavioral' },
+              { text: 'STAR Story #4: Wrong architectural decision, how you fixed it', tag: 'behavioral' },
+              { text: 'Go: Implement fan-out/fan-in pipeline with error handling', tag: 'go' },
+            ]},
+            { label: 'Wednesday, Jun 10', tasks: [
+              { text: 'STAR Story #5: Mentoring a junior engineer', tag: 'behavioral' },
+              { text: 'STAR Story #6: Pushed back on requirements', tag: 'behavioral' },
+              { text: 'Go: Implement rate limiter (token bucket with goroutines)', tag: 'go' },
+            ]},
+            { label: 'Thursday, Jun 11', tasks: [
+              { text: 'STAR Story #7: Biggest technical challenge solved', tag: 'behavioral' },
+              { text: 'STAR Story #8: Process/system improvement', tag: 'behavioral' },
+              { text: 'Go: Implement circuit breaker pattern', tag: 'go' },
+            ]},
+            { label: 'Friday, Jun 12', tasks: [
+              { text: 'HLD DESIGN #10: Food Delivery System — TIMED 45 min', tag: 'hld' },
+              { text: 'Go: Explain Go scheduler (M:N, GOMAXPROCS, work stealing)', tag: 'go' },
+            ]},
+            { label: 'Saturday, Jun 13', tasks: [
+              { text: 'HLD DESIGN #11: Video Streaming / CDN — TIMED 45 min', tag: 'hld' },
+              { text: 'Practice: voice record all 8 STAR stories (2 min each)', tag: 'behavioral' },
+            ]},
+            { label: 'Sunday, Jun 14', tasks: [
+              { text: 'HM prep: system you designed E2E, SQL vs NoSQL, Kafka vs SQS', tag: 'behavioral' },
+              { text: 'Go: memory model, happens-before — write explanation notes', tag: 'go' },
+            ]},
+          ],
+          confidence: ['Behavioral (STAR)', 'Go Concurrency Impl.', 'HLD (11 designs)']
+        },
+      ]
+    },
+    {
+      name: 'Phase 4: Mock Week', weeks: [
+        {
+          name: 'Week 12: Full Mock Interviews + Final Review', dates: 'Jun 15 - Jun 21',
+          days: [
+            { label: 'Monday, Jun 15 — DSA Mock', tasks: [
+              { text: 'Mock: 45 min — 2 Medium LeetCode in Go', tag: 'dsa' },
+              { text: 'Mock: 45 min — 1 Hard LeetCode in Go', tag: 'dsa' },
+              { text: 'Review: time management, edge cases, communication', tag: 'dsa' },
+            ]},
+            { label: 'Tuesday, Jun 16 — Machine Coding Mock', tasks: [
+              { text: 'Mock: 90 min — Fresh problem (Hotel Booking / Cricket Scoreboard)', tag: 'mc' },
+              { text: 'Checklist: compiles? SOLID? extensible? tests? finished in time?', tag: 'mc' },
+            ]},
+            { label: 'Wednesday, Jun 17 — LLD Mock', tasks: [
+              { text: 'Mock: 60 min — Online Auction / Ride-Sharing Matching Engine', tag: 'lld' },
+              { text: 'Focus: entities, patterns, API contracts, state machines', tag: 'lld' },
+            ]},
+            { label: 'Thursday, Jun 18 — HLD Mock', tasks: [
+              { text: 'Mock: 60 min — Real-time Analytics / Logging Pipeline', tag: 'hld' },
+              { text: 'Follow framework: requirements > estimates > API > arch > tradeoffs', tag: 'hld' },
+            ]},
+            { label: 'Friday, Jun 19 — Behavioral Mock', tasks: [
+              { text: 'Mock: 45 min — "Tell me about yourself" + 3 STAR stories', tag: 'behavioral' },
+              { text: 'HM questions: disagreements, production incidents, TDD approach', tag: 'behavioral' },
+            ]},
+            { label: 'Saturday, Jun 20 — Gap Analysis', tasks: [
+              { text: 'Re-solve 5 weakest DSA problems', tag: 'dsa' },
+              { text: 'Re-do 1 machine coding problem you struggled with', tag: 'mc' },
+              { text: 'Quick-explain all 11 HLD designs (5 min each)', tag: 'hld' },
+            ]},
+            { label: 'Sunday, Jun 21 — Launch Ready', tasks: [
+              { text: 'Resume finalized — quantified achievements, Go/microservices/cloud', tag: 'behavioral' },
+              { text: 'Questions for interviewers prepared', tag: 'behavioral' },
+              { text: 'CELEBRATE — You are ready!', tag: 'go' },
+            ]},
+          ],
+          confidence: ['DSA Mock Result', 'Machine Coding Mock', 'HLD Mock', 'Overall Readiness']
+        },
+      ]
+    },
+  ]
+};
+
+// State
+let state = { checks: {}, notes: {}, confidence: {}, dailyLog: {} };
+const LS_KEY = 'interview-prep-tracker-v1';
+
+function loadState() {
+  try {
+    const s = localStorage.getItem(LS_KEY);
+    if (s) state = JSON.parse(s);
+  } catch(e) {}
+}
+function saveState() {
+  localStorage.setItem(LS_KEY, JSON.stringify(state));
+}
+
+function taskId(pi, wi, di, ti) { return `${pi}-${wi}-${di}-${ti}`; }
+function noteId(pi, wi) { return `note-${pi}-${wi}`; }
+function confId(pi, wi, ci) { return `conf-${pi}-${wi}-${ci}`; }
+
+function render() {
+  const tabsEl = document.getElementById('tabs');
+  const container = document.getElementById('phasesContainer');
+  tabsEl.innerHTML = '';
+  container.innerHTML = '';
+
+  DATA.phases.forEach((phase, pi) => {
+    // Calculate phase completion
+    let total = 0, done = 0;
+    phase.weeks.forEach((week, wi) => {
+      week.days.forEach((day, di) => {
+        day.tasks.forEach((_, ti) => {
+          total++;
+          if (state.checks[taskId(pi,wi,di,ti)]) done++;
+        });
+      });
+    });
+    const pct = total ? Math.round(done/total*100) : 0;
+
+    // Tab
+    const tab = document.createElement('div');
+    tab.className = 'tab' + (pi === 0 ? ' active' : '');
+    const badgeClass = pct === 100 ? 'badge-done' : (pct > 0 ? 'badge-active' : 'badge-pending');
+    tab.innerHTML = `${phase.name}<span class="badge ${badgeClass}">${pct}%</span>`;
+    tab.onclick = () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('phase-'+pi).classList.add('active');
+    };
+    tabsEl.appendChild(tab);
+
+    // Phase content
+    const phaseEl = document.createElement('div');
+    phaseEl.className = 'phase' + (pi === 0 ? ' active' : '');
+    phaseEl.id = 'phase-'+pi;
+
+    phase.weeks.forEach((week, wi) => {
+      let wTotal = 0, wDone = 0;
+      week.days.forEach((day, di) => {
+        day.tasks.forEach((_, ti) => {
+          wTotal++;
+          if (state.checks[taskId(pi,wi,di,ti)]) wDone++;
+        });
+      });
+      const wPct = wTotal ? Math.round(wDone/wTotal*100) : 0;
+
+      const card = document.createElement('div');
+      card.className = 'week-card' + (wPct > 0 && wPct < 100 ? ' open' : '');
+
+      card.innerHTML = `
+        <div class="week-header" onclick="this.parentElement.classList.toggle('open')">
+          <h3><span class="chevron">&#9654;</span> ${week.name} <span style="color:var(--muted);font-size:0.85rem;font-weight:400">${week.dates}</span></h3>
+          <div class="week-progress">
+            <span class="pct">${wDone}/${wTotal}</span>
+            <div class="bar"><div class="bar-fill" style="width:${wPct}%"></div></div>
+          </div>
+        </div>
+        <div class="week-body" id="wb-${pi}-${wi}"></div>
+      `;
+      phaseEl.appendChild(card);
+    });
+
+    container.appendChild(phaseEl);
+  });
+
+  // Render week bodies
+  DATA.phases.forEach((phase, pi) => {
+    phase.weeks.forEach((week, wi) => {
+      const wb = document.getElementById(`wb-${pi}-${wi}`);
+      if (!wb) return;
+      let html = '';
+      week.days.forEach((day, di) => {
+        // Determine if weekend
+        const isWeekend = /saturday|sunday/i.test(day.label);
+        const dayHrs = isWeekend ? '5.5 hrs' : '3.5 hrs';
+        const dayClass = isWeekend ? 'dt-weekend' : 'dt-weekday';
+        html += `<div class="day-group"><div class="day-label">${day.label}<span class="day-time ${dayClass}">${dayHrs}</span></div>`;
+
+        // Split tasks into morning/evening based on tag pattern:
+        // Weekdays: DSA tasks = Morning (1.5h), others = Evening (2h)
+        // Weekends: HLD/review = Morning (2.5h), MC/LLD/practice = Afternoon (3h)
+        let morningTasks = [];
+        let eveningTasks = [];
+        day.tasks.forEach((task) => {
+          if (isWeekend) {
+            // Weekend: first half = morning, second half = afternoon
+            if (morningTasks.length < Math.ceil(day.tasks.length / 2)) {
+              morningTasks.push(task);
+            } else {
+              eveningTasks.push(task);
+            }
+          } else {
+            // Weekday: DSA = morning, everything else = evening
+            if (task.tag === 'dsa') {
+              morningTasks.push(task);
+            } else {
+              eveningTasks.push(task);
+            }
+          }
+        });
+
+        const morningLabel = isWeekend ? 'Morning (2.5h)' : 'Morning (1.5h)';
+        const eveningLabel = isWeekend ? 'Afternoon (3h)' : 'Evening (2h)';
+
+        if (morningTasks.length > 0) {
+          html += `<div style="font-size:0.72rem;color:var(--green);font-weight:600;margin:6px 0 2px;text-transform:uppercase;letter-spacing:0.5px">${morningLabel}</div>`;
+          morningTasks.forEach((task) => {
+            const origIdx = day.tasks.indexOf(task);
+            const id = taskId(pi,wi,di,origIdx);
+            const checked = state.checks[id] ? 'checked' : '';
+            const cls = state.checks[id] ? 'task-item checked' : 'task-item';
+            html += `<div class="${cls}" id="ti-${id}">
+              <input type="checkbox" ${checked} onchange="toggleTask('${id}',this.checked)">
+              <label onclick="this.previousElementSibling.click()">${task.text}</label>
+              <span class="task-tag tag-${task.tag}">${task.tag.toUpperCase()}</span>
+            </div>`;
+          });
+        }
+        if (eveningTasks.length > 0) {
+          html += `<div style="font-size:0.72rem;color:var(--purple);font-weight:600;margin:8px 0 2px;text-transform:uppercase;letter-spacing:0.5px">${eveningLabel}</div>`;
+          eveningTasks.forEach((task) => {
+            const origIdx = day.tasks.indexOf(task);
+            const id = taskId(pi,wi,di,origIdx);
+            const checked = state.checks[id] ? 'checked' : '';
+            const cls = state.checks[id] ? 'task-item checked' : 'task-item';
+            html += `<div class="${cls}" id="ti-${id}">
+              <input type="checkbox" ${checked} onchange="toggleTask('${id}',this.checked)">
+              <label onclick="this.previousElementSibling.click()">${task.text}</label>
+              <span class="task-tag tag-${task.tag}">${task.tag.toUpperCase()}</span>
+            </div>`;
+          });
+        }
+        html += '</div>';
+      });
+      // Notes
+      const nid = noteId(pi,wi);
+      const noteVal = state.notes[nid] || '';
+      html += `<textarea class="notes-area" placeholder="Week notes: what was hard, what to revisit, key insights..."
+        onchange="saveNote('${nid}',this.value)" onblur="saveNote('${nid}',this.value)">${noteVal}</textarea>`;
+      // Confidence
+      if (week.confidence) {
+        html += '<div class="confidence"><h4>Confidence Check (1-5)</h4>';
+        week.confidence.forEach((topic, ci) => {
+          const cid = confId(pi,wi,ci);
+          const val = state.confidence[cid] || 0;
+          html += `<div class="conf-row"><span style="min-width:200px">${topic}</span><div class="stars">`;
+          for (let s = 1; s <= 5; s++) {
+            html += `<span class="star ${s<=val?'filled':''}" onclick="setConf('${cid}',${s})">&#9733;</span>`;
+          }
+          html += '</div></div>';
+        });
+        html += '</div>';
+      }
+      wb.innerHTML = html;
+    });
+  });
+
+  updateStats();
+  updateStreak();
+}
+
+function toggleTask(id, checked) {
+  state.checks[id] = checked;
+  // Log daily activity
+  const today = new Date().toISOString().slice(0,10);
+  if (!state.dailyLog) state.dailyLog = {};
+  if (!state.dailyLog[today]) state.dailyLog[today] = 0;
+  state.dailyLog[today] += checked ? 1 : -1;
+  if (state.dailyLog[today] < 0) state.dailyLog[today] = 0;
+  saveState();
+  render();
+}
+
+function saveNote(id, val) {
+  state.notes[id] = val;
+  saveState();
+}
+
+function setConf(id, val) {
+  state.confidence[id] = val;
+  saveState();
+  render();
+}
+
+function updateStats() {
+  let totalAll = 0, doneAll = 0;
+  let dsa = 0, mc = 0, lld = 0, hld = 0;
+  const targets = { dsa: 63, mc: 9, lld: 7, hld: 12 };
+
+  DATA.phases.forEach((phase, pi) => {
+    phase.weeks.forEach((week, wi) => {
+      week.days.forEach((day, di) => {
+        day.tasks.forEach((task, ti) => {
+          totalAll++;
+          const id = taskId(pi,wi,di,ti);
+          if (state.checks[id]) {
+            doneAll++;
+            if (task.tag === 'dsa') dsa++;
+            if (task.tag === 'mc') mc++;
+            if (task.tag === 'lld') lld++;
+            if (task.tag === 'hld') hld++;
+          }
+        });
+      });
+    });
+  });
+
+  const pctAll = totalAll ? Math.round(doneAll/totalAll*100) : 0;
+  document.getElementById('statDsa').textContent = `${dsa}/${targets.dsa}`;
+  document.getElementById('statMc').textContent = `${mc}/${targets.mc}`;
+  document.getElementById('statLld').textContent = `${lld}/${targets.lld}`;
+  document.getElementById('statHld').textContent = `${hld}/${targets.hld}`;
+  document.getElementById('statTotal').textContent = `${pctAll}%`;
+  document.getElementById('barDsa').style.width = Math.min(100,Math.round(dsa/targets.dsa*100))+'%';
+  document.getElementById('barMc').style.width = Math.min(100,Math.round(mc/targets.mc*100))+'%';
+  document.getElementById('barLld').style.width = Math.min(100,Math.round(lld/targets.lld*100))+'%';
+  document.getElementById('barHld').style.width = Math.min(100,Math.round(hld/targets.hld*100))+'%';
+  document.getElementById('barTotal').style.width = pctAll+'%';
+}
+
+function updateStreak() {
+  if (!state.dailyLog) state.dailyLog = {};
+  const today = new Date();
+  const dots = document.getElementById('streakDots');
+  const startDate = new Date(DATA.startDate);
+  let html = '';
+  let streak = 0;
+  let counting = true;
+
+  // Calculate streak backwards from today
+  for (let d = new Date(today); d >= startDate; d.setDate(d.getDate()-1)) {
+    const key = d.toISOString().slice(0,10);
+    if (counting) {
+      if (state.dailyLog[key] && state.dailyLog[key] > 0) {
+        streak++;
+      } else if (key !== today.toISOString().slice(0,10)) {
+        counting = false;
+      }
+    }
+  }
+
+  // Render dots for 84 days
+  for (let i = 0; i < 84; i++) {
+    const d = new Date(startDate);
+    d.setDate(d.getDate() + i);
+    const key = d.toISOString().slice(0,10);
+    const todayKey = today.toISOString().slice(0,10);
+    const isDone = state.dailyLog[key] && state.dailyLog[key] > 0;
+    const isToday = key === todayKey;
+    html += `<div class="streak-dot ${isDone?'done':''} ${isToday?'today':''}" title="${key}"></div>`;
+  }
+  dots.innerHTML = html;
+  document.getElementById('streakNum').textContent = streak;
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `interview-prep-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      state = JSON.parse(e.target.result);
+      saveState();
+      render();
+    } catch(err) {
+      alert('Invalid JSON file');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function resetAll() {
+  if (confirm('Reset ALL progress? This cannot be undone.')) {
+    state = { checks: {}, notes: {}, confidence: {}, dailyLog: {} };
+    saveState();
+    render();
+  }
+}
+
+loadState();
+render();
+</script>
+</body>
+</html>
