@@ -188,6 +188,75 @@
   .conf-row .star.filled { color: var(--yellow); }
   .conf-row .star:hover { color: var(--yellow); }
 
+  /* Sync UI */
+  .sync-bar {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 16px; font-size: 0.85rem; flex-wrap: wrap;
+  }
+  .sync-status { display: flex; align-items: center; gap: 6px; }
+  .sync-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+  .sync-dot.green { background: var(--green); }
+  .sync-dot.yellow { background: var(--yellow); animation: pulse 1s infinite; }
+  .sync-dot.red { background: var(--red); }
+  .sync-dot.gray { background: var(--muted); }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+  .sync-msg { color: var(--muted); }
+  .sync-actions { display: flex; gap: 6px; margin-left: auto; }
+  .btn-sync { border-color: var(--green); color: var(--green); }
+  .btn-sync:hover { background: rgba(63,185,80,0.15); }
+  .btn-setup { border-color: var(--yellow); color: var(--yellow); }
+  .btn-setup:hover { background: rgba(210,153,34,0.15); }
+
+  /* Setup Modal */
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7); z-index: 2000; display: none;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 28px; max-width: 520px; width: 90%; max-height: 90vh; overflow-y: auto;
+  }
+  .modal h2 { font-size: 1.2rem; margin-bottom: 16px; }
+  .modal p { font-size: 0.9rem; color: var(--muted); margin-bottom: 12px; line-height: 1.6; }
+  .modal ol { font-size: 0.85rem; color: var(--muted); padding-left: 20px; margin-bottom: 16px; }
+  .modal ol li { margin-bottom: 8px; line-height: 1.5; }
+  .modal code {
+    background: var(--bg); padding: 2px 6px; border-radius: 4px;
+    font-size: 0.8rem; color: var(--accent);
+  }
+  .modal input[type="password"], .modal input[type="text"] {
+    width: 100%; padding: 10px 14px; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 0.9rem; margin-bottom: 12px;
+    font-family: monospace;
+  }
+  .modal input:focus { border-color: var(--accent); outline: none; }
+  .modal label { font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 6px; }
+  .modal .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+  .btn-primary {
+    background: var(--accent); border: none; color: #fff; padding: 8px 20px;
+    border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 600;
+  }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-secondary {
+    background: var(--card); border: 1px solid var(--border); color: var(--text);
+    padding: 8px 20px; border-radius: 6px; cursor: pointer; font-size: 0.9rem;
+  }
+  .modal .hint {
+    background: rgba(88,166,255,0.08); border: 1px solid rgba(88,166,255,0.2);
+    border-radius: 8px; padding: 10px 14px; font-size: 0.8rem; color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .modal .gist-id-display {
+    background: var(--bg); padding: 8px 12px; border-radius: 6px; font-family: monospace;
+    font-size: 0.85rem; color: var(--green); border: 1px solid var(--border);
+    margin-bottom: 12px; word-break: break-all;
+  }
+
   /* Daily Schedule Card */
   .schedule-card {
     background: var(--card); border: 1px solid var(--border);
@@ -384,6 +453,52 @@
     <button class="btn" onclick="document.getElementById('importFile').click()">Import JSON</button>
     <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)">
     <button class="btn btn-danger" onclick="resetAll()">Reset All</button>
+  </div>
+</div>
+
+<!-- Sync Status Bar -->
+<div class="sync-bar" id="syncBar">
+  <div class="sync-status">
+    <div class="sync-dot gray" id="syncDot"></div>
+    <span class="sync-msg" id="syncMsg">Sync not configured</span>
+  </div>
+  <div class="sync-actions">
+    <button class="btn btn-sync" id="btnSyncNow" onclick="syncNow()" style="display:none">Sync Now</button>
+    <button class="btn btn-setup" id="btnSetup" onclick="showSetupModal()">Setup Sync</button>
+  </div>
+</div>
+
+<!-- Setup Modal -->
+<div class="modal-overlay" id="setupModal">
+  <div class="modal">
+    <h2>Setup Cross-Device Sync</h2>
+    <p>This connects your tracker to a private GitHub Gist so your progress syncs across all devices.</p>
+
+    <div class="hint">
+      You only need to do this once per device. Your token is stored locally in this browser — never uploaded anywhere.
+    </div>
+
+    <label>Gist ID (pre-filled for you)</label>
+    <div class="gist-id-display">f6006d64717a7d962e8b483e96a40e2c</div>
+
+    <label>GitHub Personal Access Token</label>
+    <input type="password" id="inputPat" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+
+    <p>To create a token:</p>
+    <ol>
+      <li>Go to <a href="https://github.com/settings/tokens?type=beta" target="_blank" style="color:var(--accent)">github.com/settings/tokens</a> (login as <strong>rmdhanush</strong>)</li>
+      <li>Click <strong>"Generate new token"</strong> > <strong>"Fine-grained token"</strong></li>
+      <li>Name: <code>interview-tracker</code></li>
+      <li>Expiration: <strong>90 days</strong> (or custom)</li>
+      <li>Repository access: <strong>Public Repositories (read-only)</strong></li>
+      <li>Under <strong>Account permissions</strong> > <strong>Gists</strong>: set to <strong>Read and write</strong></li>
+      <li>Click <strong>Generate token</strong> and paste it above</li>
+    </ol>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeSetupModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveSync()">Connect & Sync</button>
+    </div>
   </div>
 </div>
 
@@ -1756,6 +1871,183 @@ function resetAll() {
 
 loadState();
 render();
+
+// =====================
+// GIST SYNC ENGINE
+// =====================
+const GIST_ID = 'f6006d64717a7d962e8b483e96a40e2c';
+const SYNC_LS_KEY = 'interview-prep-sync-v1';
+let syncConfig = {};
+let syncDebounceTimer = null;
+let isSyncing = false;
+
+function loadSyncConfig() {
+  try {
+    const s = localStorage.getItem(SYNC_LS_KEY);
+    if (s) syncConfig = JSON.parse(s);
+  } catch(e) {}
+}
+
+function saveSyncConfig() {
+  localStorage.setItem(SYNC_LS_KEY, JSON.stringify(syncConfig));
+}
+
+function setSyncUI(dotColor, msg, showSyncBtn) {
+  document.getElementById('syncDot').className = 'sync-dot ' + dotColor;
+  document.getElementById('syncMsg').textContent = msg;
+  document.getElementById('btnSyncNow').style.display = showSyncBtn ? '' : 'none';
+  document.getElementById('btnSetup').textContent = syncConfig.pat ? 'Reconfigure' : 'Setup Sync';
+}
+
+function showSetupModal() {
+  document.getElementById('setupModal').classList.add('show');
+  if (syncConfig.pat) document.getElementById('inputPat').value = syncConfig.pat;
+}
+
+function closeSetupModal() {
+  document.getElementById('setupModal').classList.remove('show');
+}
+
+async function saveSync() {
+  const pat = document.getElementById('inputPat').value.trim();
+  if (!pat) { alert('Please enter your GitHub Personal Access Token'); return; }
+
+  // Test the token
+  setSyncUI('yellow', 'Testing connection...', false);
+  try {
+    const res = await fetch('https://api.github.com/gists/' + GIST_ID, {
+      headers: { 'Authorization': 'token ' + pat, 'Accept': 'application/vnd.github+json' }
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'HTTP ' + res.status);
+    }
+    // Token works
+    syncConfig.pat = pat;
+    saveSyncConfig();
+    closeSetupModal();
+    setSyncUI('green', 'Connected! Syncing...', true);
+    await syncNow();
+  } catch(e) {
+    setSyncUI('red', 'Connection failed: ' + e.message, false);
+    alert('Connection failed: ' + e.message + '\n\nMake sure the token has Gist read/write permission.');
+  }
+}
+
+async function fetchGist() {
+  const res = await fetch('https://api.github.com/gists/' + GIST_ID, {
+    headers: { 'Authorization': 'token ' + syncConfig.pat, 'Accept': 'application/vnd.github+json' },
+    cache: 'no-store'
+  });
+  if (!res.ok) throw new Error('Failed to fetch gist: HTTP ' + res.status);
+  const gist = await res.json();
+  const content = gist.files['progress.json']?.content;
+  if (!content) throw new Error('progress.json not found in gist');
+  return JSON.parse(content);
+}
+
+async function updateGist(data) {
+  data.lastSync = Date.now();
+  const res = await fetch('https://api.github.com/gists/' + GIST_ID, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': 'token ' + syncConfig.pat,
+      'Accept': 'application/vnd.github+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      files: { 'progress.json': { content: JSON.stringify(data) } }
+    })
+  });
+  if (!res.ok) throw new Error('Failed to update gist: HTTP ' + res.status);
+}
+
+function mergeState(local, remote) {
+  // Merge strategy: for each key, keep whichever has more data
+  const merged = { checks: {}, notes: {}, confidence: {}, dailyLog: {} };
+
+  // Checks: union of all checked items (once checked, stays checked)
+  const allCheckKeys = new Set([...Object.keys(local.checks || {}), ...Object.keys(remote.checks || {})]);
+  allCheckKeys.forEach(k => {
+    merged.checks[k] = (local.checks || {})[k] || (remote.checks || {})[k];
+  });
+
+  // Notes: keep longer/newer note per key
+  const allNoteKeys = new Set([...Object.keys(local.notes || {}), ...Object.keys(remote.notes || {})]);
+  allNoteKeys.forEach(k => {
+    const l = (local.notes || {})[k] || '';
+    const r = (remote.notes || {})[k] || '';
+    merged.notes[k] = l.length >= r.length ? l : r;
+  });
+
+  // Confidence: keep higher value
+  const allConfKeys = new Set([...Object.keys(local.confidence || {}), ...Object.keys(remote.confidence || {})]);
+  allConfKeys.forEach(k => {
+    merged.confidence[k] = Math.max((local.confidence || {})[k] || 0, (remote.confidence || {})[k] || 0);
+  });
+
+  // DailyLog: keep higher count per day
+  const allDayKeys = new Set([...Object.keys(local.dailyLog || {}), ...Object.keys(remote.dailyLog || {})]);
+  allDayKeys.forEach(k => {
+    merged.dailyLog[k] = Math.max((local.dailyLog || {})[k] || 0, (remote.dailyLog || {})[k] || 0);
+  });
+
+  return merged;
+}
+
+async function syncNow() {
+  if (!syncConfig.pat || isSyncing) return;
+  isSyncing = true;
+  setSyncUI('yellow', 'Syncing...', true);
+
+  try {
+    // Fetch remote state
+    const remote = await fetchGist();
+
+    // Merge local + remote
+    const merged = mergeState(state, remote);
+
+    // Save merged to gist
+    await updateGist(merged);
+
+    // Save merged locally
+    state = merged;
+    saveState();
+    render();
+
+    const now = new Date().toLocaleTimeString();
+    setSyncUI('green', 'Synced at ' + now, true);
+  } catch(e) {
+    console.error('Sync error:', e);
+    setSyncUI('red', 'Sync failed: ' + e.message, true);
+  } finally {
+    isSyncing = false;
+  }
+}
+
+function debouncedSync() {
+  if (!syncConfig.pat) return;
+  clearTimeout(syncDebounceTimer);
+  setSyncUI('yellow', 'Saving...', true);
+  syncDebounceTimer = setTimeout(() => syncNow(), 3000);
+}
+
+// Monkey-patch saveState to trigger sync
+const _origSaveState = saveState;
+saveState = function() {
+  _origSaveState();
+  debouncedSync();
+};
+
+// Initial sync on page load
+loadSyncConfig();
+if (syncConfig.pat) {
+  setSyncUI('yellow', 'Connecting...', false);
+  document.getElementById('btnSyncNow').style.display = '';
+  syncNow();
+} else {
+  setSyncUI('gray', 'Sync not configured — click Setup Sync to enable cross-device sync', false);
+}
 </script>
 </body>
 </html>
