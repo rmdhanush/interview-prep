@@ -1565,6 +1565,8 @@ const DATA = {
 // State
 let state = { checks: {}, notes: {}, confidence: {}, dailyLog: {} };
 const LS_KEY = 'interview-prep-tracker-v1';
+// Track which week cards are open (survives re-renders, not persisted)
+const openWeeks = {};
 
 function loadState() {
   try {
@@ -1628,10 +1630,15 @@ function render() {
       const wPct = wTotal ? Math.round(wDone/wTotal*100) : 0;
 
       const card = document.createElement('div');
-      card.className = 'week-card' + (wPct > 0 && wPct < 100 ? ' open' : '');
+      const weekId = `${pi}-${wi}`;
+      // First render: auto-open in-progress weeks; after that, respect user's toggle
+      if (!(weekId in openWeeks)) {
+        openWeeks[weekId] = (wPct > 0 && wPct < 100);
+      }
+      card.className = 'week-card' + (openWeeks[weekId] ? ' open' : '');
 
       card.innerHTML = `
-        <div class="week-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="week-header" onclick="toggleWeek('${weekId}', this.parentElement)">
           <h3><span class="chevron">&#9654;</span> ${week.name} <span style="color:var(--muted);font-size:0.85rem;font-weight:400">${week.dates}</span></h3>
           <div class="week-progress">
             <span class="pct">${wDone}/${wTotal}</span>
@@ -1740,6 +1747,11 @@ function render() {
 
   updateStats();
   updateStreak();
+}
+
+function toggleWeek(weekId, el) {
+  openWeeks[weekId] = !openWeeks[weekId];
+  el.classList.toggle('open');
 }
 
 function toggleTask(id, checked) {
