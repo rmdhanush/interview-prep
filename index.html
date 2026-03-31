@@ -1773,14 +1773,30 @@ function toggleWeek(weekId, el) {
   el.classList.toggle('open');
 }
 
+function getTaskDate(id) {
+  // id = "pi-wi-di-ti" → extract day label from DATA and parse its date
+  const parts = id.split('-');
+  const pi = +parts[0], wi = +parts[1], di = +parts[2];
+  const label = DATA.phases[pi].weeks[wi].days[di].label; // e.g. "Monday, Mar 30"
+  const match = label.match(/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d+)/);
+  if (!match) return new Date().toISOString().slice(0,10); // fallback
+  const months = {Jan:'01',Feb:'02',Mar:'03',Apr:'04',May:'05',Jun:'06',Jul:'07',Aug:'08',Sep:'09',Oct:'10',Nov:'11',Dec:'12'};
+  const year = DATA.startDate.slice(0,4);
+  const m = months[match[1]], d = match[2].padStart(2,'0');
+  // Handle year rollover (if month < start month, it's next year)
+  const startMonth = +DATA.startDate.slice(5,7);
+  const yr = (+m < startMonth) ? +year + 1 : +year;
+  return `${yr}-${m}-${d}`;
+}
+
 function toggleTask(id, checked) {
   state.checks[id] = checked;
-  // Log daily activity
-  const today = new Date().toISOString().slice(0,10);
+  // Log activity under the task's actual date, not today
+  const taskDate = getTaskDate(id);
   if (!state.dailyLog) state.dailyLog = {};
-  if (!state.dailyLog[today]) state.dailyLog[today] = 0;
-  state.dailyLog[today] += checked ? 1 : -1;
-  if (state.dailyLog[today] < 0) state.dailyLog[today] = 0;
+  if (!state.dailyLog[taskDate]) state.dailyLog[taskDate] = 0;
+  state.dailyLog[taskDate] += checked ? 1 : -1;
+  if (state.dailyLog[taskDate] < 0) state.dailyLog[taskDate] = 0;
   saveState();
   render();
 }
