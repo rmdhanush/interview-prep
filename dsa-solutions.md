@@ -12,6 +12,7 @@
 | Stack (LIFO) | [Valid Parentheses](#valid-parentheses) |
 | Sort + Two Pointers | [3Sum](#3sum) |
 | Dummy Node + Merge | [Merge Two Sorted Lists](#merge-two-sorted-lists) |
+| Prefix + Suffix Arrays | [Product of Array Except Self](#product-of-array-except-self) |
 
 ---
 
@@ -84,6 +85,33 @@
 **Why it works:** Dummy node avoids all "what if head changes" edge cases. Always pick the smaller node. When one list runs out, the remainder is already sorted — just attach.
 
 **Reuse when:** Any linked list problem where the head might change or you're building a new list. Also: Merge K Sorted Lists, Partition List, Sort List.
+
+---
+
+## Product of Array Except Self
+
+**LeetCode #238 (Medium) | Pattern: Prefix + Suffix Arrays | Time: O(n) Space: O(n)**
+
+**Algorithm:**
+1. Build `prefix[]` — prefix[i] = product of all elements **before** i
+   - prefix[0] = 1 (nothing before first element)
+   - prefix[i] = prefix[i-1] * nums[i-1]
+2. Build `suffix[]` — suffix[i] = product of all elements **after** i
+   - suffix[last] = 1 (nothing after last element)
+   - suffix[i] = suffix[i+1] * nums[i+1]
+3. Answer: `result[i] = prefix[i] * suffix[i]`
+
+**Example:**
+```
+nums:    [1,  2,  3,  4]
+prefix:  [1,  1,  2,  6]    ← product of everything to my LEFT
+suffix:  [24, 12, 4,  1]    ← product of everything to my RIGHT
+answer:  [24, 12, 8,  6]    ← left * right
+```
+
+**Why it works:** For each index, the answer is "product of everything except me" = "product of everything to my left" × "product of everything to my right". No division needed.
+
+**Reuse when:** Any problem asking "compute something for each element based on all OTHER elements" — prefix/suffix decomposition. Also: Trapping Rain Water (prefix max + suffix max), running sums, subarray products.
 
 ---
 
