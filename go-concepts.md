@@ -21,6 +21,13 @@
    - [Stack Growth](#stack-growth)
    - [Goroutine Death & Leaks](#goroutine-death--leaks)
 3. [Concurrency vs Parallelism](#3-concurrency-vs-parallelism)
+4. [Sync Package](#4-sync-package)
+   - [Mutex](#mutex)
+   - [RWMutex](#rwmutex)
+   - [WaitGroup](#waitgroup)
+   - [Once](#once)
+   - [Pool](#pool)
+   - [Decision Cheat Sheet](#sync-decision-cheat-sheet)
 
 ---
 
@@ -359,6 +366,167 @@ runtime.GOMAXPROCS(4)   // parallelism possible — goroutines run simultaneousl
 
 ---
 
+## 4. Sync Package
+
+> Channels are for **passing data** between goroutines. Sync is for **protecting shared data**.
+> Channels = communication. Sync = protection.
+
+### Mutex
+
+**Analogy: Bathroom with a lock.** Only one person can use it at a time. Lock the door, do your thing, unlock.
+
+```go
+var (
+    balance int
+    mu      sync.Mutex
+)
+
+func deposit(amount int) {
+    mu.Lock()
+    defer mu.Unlock()
+    balance += amount
+}
+```
+
+**Without Mutex** — race condition:
+```
+A reads balance: 100
+B reads balance: 100    ← stale!
+A writes: 150
+B writes: 130           ← overwrites A's work!
+```
+
+**With Mutex** — safe:
+```
+A locks → reads 100 → writes 150 → unlocks
+B locks → reads 150 → writes 180 → unlocks  ✓
+```
+
+> Always use `defer mu.Unlock()` to avoid forgetting to unlock.
+
+### RWMutex
+
+**Analogy: Library rules.** Many people can read a book at the same time. Only one person can write (edit), and nobody reads while writing.
+
+```go
+var (
+    cache = make(map[string]string)
+    rw    sync.RWMutex
+)
+
+func get(key string) string {
+    rw.RLock()           // read lock — many readers allowed
+    defer rw.RUnlock()
+    return cache[key]
+}
+
+func set(key, value string) {
+    rw.Lock()            // write lock — exclusive
+    defer rw.Unlock()
+    cache[key] = value
+}
+```
+
+| Scenario | Use |
+|---|---|
+| Mostly writes | `sync.Mutex` (simpler, less overhead) |
+| Many reads, rare writes | `sync.RWMutex` (readers don't block each other) |
+
+### WaitGroup
+
+**Analogy: Parent waiting for all kids to finish shopping.** "I'll wait at the exit. Each of you check in when you're done."
+
+```go
+var wg sync.WaitGroup
+
+for i := 0; i < 5; i++ {
+    wg.Add(1)           // "one more kid going in"
+    go func(id int) {
+        defer wg.Done() // "I'm back!"
+        fmt.Printf("Worker %d done\n", id)
+    }(i)
+}
+
+wg.Wait()               // "I'll wait until all kids are back"
+```
+
+| Method | Meaning |
+|---|---|
+| `wg.Add(n)` | n more tasks starting |
+| `wg.Done()` | one task finished (same as `Add(-1)`) |
+| `wg.Wait()` | block until counter reaches 0 |
+
+> **Always call `Add()` before launching the goroutine, not inside it.** Otherwise main might reach `Wait()` before `Add()` runs.
+
+### Once
+
+**Analogy: "Only open the restaurant once, no matter how many customers arrive at the same time."**
+
+```go
+var (
+    db   *Database
+    once sync.Once
+)
+
+func getDB() *Database {
+    once.Do(func() {
+        db = connectToDB()   // runs only ONCE
+    })
+    return db
+}
+```
+
+Even if 100 goroutines call `getDB()` simultaneously — first one runs init, other 99 **block and wait** (they don't skip), all 100 get the same instance.
+
+**Use cases:** Singleton initialization, one-time config loading, lazy setup.
+
+### Pool
+
+**Analogy: Office supply closet.** Instead of buying a new stapler every time, keep a closet. Take one, use it, put it back. If empty, buy a new one.
+
+```go
+var bufPool = sync.Pool{
+    New: func() interface{} {
+        return new(bytes.Buffer)   // create new if closet is empty
+    },
+}
+
+func processRequest() {
+    buf := bufPool.Get().(*bytes.Buffer)  // grab from pool
+    buf.Reset()                            // clean before use
+    defer bufPool.Put(buf)                 // put back when done
+    buf.WriteString("hello")
+}
+```
+
+- `Get()` — take from pool (or create new if empty)
+- `Put()` — return to pool for reuse
+- Pool can be **garbage collected** anytime — don't rely on items staying
+- **Use for:** High-frequency allocations (buffers, slices). Reduces GC pressure.
+- **Don't use for:** Goroutine pools (use worker pool pattern with channels).
+
+### Sync Decision Cheat Sheet
+
+```
+Need to protect a shared variable?
+  Mostly writes           → sync.Mutex
+  Many reads, few writes  → sync.RWMutex
+
+Need to wait for goroutines to finish?
+  → sync.WaitGroup
+
+Need to run something exactly once?
+  → sync.Once
+
+Need to reuse expensive objects?
+  → sync.Pool
+
+Need goroutines to talk to each other?
+  → Don't use sync — use channels
+```
+
+---
+
 ## Practice Exercises
 
 ### Exercise 1: Ping-Pong (bidirectional channels)
@@ -370,6 +538,9 @@ Goroutine A generates numbers → channel → Goroutine B doubles them → chann
 ### Exercise 3: Timeout (select + time.After)
 Goroutine does slow work (3s sleep). Use `select` with `time.After(2s)` to timeout.
 
+### Exercise 4: Worker Pool with WaitGroup
+Launch 3 workers. Send 10 jobs through a channel. Each worker prints "Worker X processed job Y". Main waits for all workers using WaitGroup.
+
 ---
 
-*Last updated: 2026-03-29*
+*Last updated: 2026-04-01*
