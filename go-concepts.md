@@ -39,6 +39,11 @@
    - [Generic Types](#generic-types)
    - [Type Inference](#type-inference)
    - [When to Use vs Not](#when-to-use-vs-not)
+7. [Defer, Panic, Recover](#7-defer-panic-recover)
+   - [Defer Patterns](#defer-patterns)
+   - [Panic — When and When Not](#panic--when-and-when-not)
+   - [Recover — Catching Panics](#recover--catching-panics)
+   - [Bug vs Error](#bug-vs-error)
 
 ---
 
@@ -742,6 +747,164 @@ Min[float64](3, 3.14)  // explicit fixes it
 ```
 
 > **Rule of thumb:** About to copy-paste a function and only change the type? → Generics. Different types need different behavior? → Interfaces.
+
+---
+
+## 7. Defer, Panic, Recover
+
+> **defer** = "clean up when I leave" (hotel checkout — always return the key)
+> **panic** = "fire alarm" (building is on fire, not coffee machine broken)
+> **recover** = "catch the alarm before evacuation" (only at boundaries)
+
+### Defer Patterns
+
+**Close what you open:**
+```go
+f, err := os.Open(path)
+if err != nil { return err }
+defer f.Close()   // guaranteed, even if panic or early return
+```
+
+**Unlock what you lock:**
+```go
+mu.Lock()
+defer mu.Unlock()   // one miss without defer = deadlock
+```
+
+**DB transaction safety:**
+```go
+tx, _ := db.Begin()
+defer tx.Rollback()   // no-op if already committed
+// do work...
+return tx.Commit()
+```
+
+**Defer runs in LIFO (stack) order:**
+```go
+defer fmt.Println("first")    // runs 3rd
+defer fmt.Println("second")   // runs 2nd
+defer fmt.Println("third")    // runs 1st
+```
+
+**Gotcha — arguments evaluated immediately:**
+```go
+start := time.Now()
+defer fmt.Println(time.Since(start))   // ← captures 0s at defer line!
+
+// Fix — use closure:
+defer func() {
+    fmt.Println(time.Since(start))     // ← evaluated when defer runs ✓
+}()
+```
+
+**Timing helper pattern:**
+```go
+func Timer(name string) func() {
+    start := time.Now()
+    return func() { fmt.Printf("%s took %v\n", name, time.Since(start)) }
+}
+
+func processOrder() {
+    defer Timer("processOrder")()   // prints: processOrder took 1.23s
+}
+```
+
+### Panic — When and When Not
+
+```
+✅ Panic (bug — code is wrong):
+  - Impossible switch default on internally-controlled values
+  - Nil pointer from your own initialization
+  - regexp.MustCompile, template.Must (hardcoded patterns)
+
+❌ Don't panic (error — world isn't cooperating):
+  - File not found, DB down, network timeout
+  - Bad user input
+  - External API failure
+```
+
+**What happens during panic:**
+```
+panic() → current function stops
+       → deferred functions run (LIFO)
+       → goes up to caller → their defers run
+       → ... up the call stack
+       → reaches main → program crashes with stack trace
+```
+
+### Recover — Catching Panics
+
+**Only works inside a deferred function.** Three real-world uses:
+
+**HTTP middleware — one bad request shouldn't crash the server:**
+```go
+func recoveryMiddleware(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        defer func() {
+            if err := recover(); err != nil {
+                log.Printf("panic: %v\n%s", err, debug.Stack())
+                http.Error(w, "Internal Server Error", 500)
+            }
+        }()
+        next.ServeHTTP(w, r)
+    })
+}
+```
+
+**Convert panic to error — wrapping risky third-party code:**
+```go
+func safeProcess(data []byte) (result string, err error) {
+    defer func() {
+        if r := recover(); r != nil {
+            err = fmt.Errorf("failed: %v", r)   // named return gets set
+        }
+    }()
+    result = riskyLib(data)
+    return result, nil
+}
+```
+
+**Worker pool — one bad job shouldn't kill the worker:**
+```go
+for job := range jobs {
+    func() {
+        defer func() {
+            if r := recover(); r != nil {
+                log.Printf("job %s panicked: %v", job.ID, r)
+            }
+        }()
+        process(job)   // panics are caught, worker continues
+    }()
+}
+```
+
+### Bug vs Error
+
+> **"Can this happen in production with perfect code?"**
+> **Yes** → error → `return error`
+> **No** → bug → `panic` (or fix the code)
+
+| | Bug (panic) | Error (return err) |
+|---|---|---|
+| Whose fault? | Developer | External world |
+| Can user cause it? | No | Yes |
+| Fix | Fix the code | Handle gracefully |
+
+**Same switch, different source:**
+```
+status from YOUR code  → default is unreachable → panic (bug)
+status from USER input → default is expected    → return error
+```
+
+### Decision Cheat Sheet
+
+```
+Closing/unlocking/rolling back?     → defer
+Impossible state in your own code?  → panic
+Network/DB/file/user input error?   → return error
+HTTP handler might crash?           → recover middleware
+Third-party code might panic?       → defer/recover, convert to error
+```
 
 ---
 
