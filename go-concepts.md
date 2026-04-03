@@ -28,6 +28,17 @@
    - [Once](#once)
    - [Pool](#pool)
    - [Decision Cheat Sheet](#sync-decision-cheat-sheet)
+5. [Context Package](#5-context-package)
+   - [WithCancel](#withcancel)
+   - [WithTimeout](#withtimeout)
+   - [WithValue](#withvalue)
+   - [Propagation](#propagation--how-context-flows)
+6. [Generics](#6-generics)
+   - [Type Constraints](#type-constraints)
+   - [Custom Constraints](#custom-constraints)
+   - [Generic Types](#generic-types)
+   - [Type Inference](#type-inference)
+   - [When to Use vs Not](#when-to-use-vs-not)
 
 ---
 
@@ -527,6 +538,213 @@ Need goroutines to talk to each other?
 
 ---
 
+## 5. Context Package
+
+> **Analogy: A walkie-talkie your boss gives you.** Boss can cancel the mission, set a timer, or attach a sticky note with info. Every sub-goroutine gets the same walkie-talkie. When boss cancels → everyone stops.
+
+```
+Boss (main) gives ctx to:
+  ├── API Handler
+  │     ├── DB Query         ← all stop when
+  │     └── External API Call     ctx is cancelled
+  Boss cancels ctx → ALL of them stop
+```
+
+### WithCancel
+
+**"Boss presses a button → everyone stops."**
+
+```go
+ctx, cancel := context.WithCancel(context.Background())
+defer cancel()   // ALWAYS defer this
+
+go func(ctx context.Context) {
+    for {
+        select {
+        case <-ctx.Done():       // walkie-talkie buzzes
+            return               // stop working
+        default:
+            doWork()
+        }
+    }
+}(ctx)
+
+cancel()   // press the button → goroutine stops
+```
+
+- `cancel()` closes `ctx.Done()` channel
+- `ctx.Err()` returns `context.Canceled`
+
+### WithTimeout
+
+**"Bomb timer — you have 3 seconds, then auto-cancel."**
+
+```go
+ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+defer cancel()
+
+select {
+case result := <-doSlowWork(ctx):
+    fmt.Println(result)
+case <-ctx.Done():
+    fmt.Println("timed out:", ctx.Err())   // deadline exceeded
+}
+```
+
+- `WithTimeout` = relative ("5s from now")
+- `WithDeadline` = absolute ("at 3:00 PM exactly")
+
+### WithValue
+
+**"Sticky note on the walkie-talkie — pass-along metadata."**
+
+```go
+type contextKey string
+const reqIDKey contextKey = "requestID"
+
+ctx := context.WithValue(parentCtx, reqIDKey, "abc-123")
+reqID := ctx.Value(reqIDKey).(string)   // downstream reads it
+```
+
+- Use **custom key type** (not bare strings) to avoid collisions
+- Only for: request ID, auth token, trace ID
+- Never for: DB connections, config, loggers
+
+### Propagation — How Context Flows
+
+```
+Parent cancels → ALL children cancel
+Child cancels  → only that child dies, parent is fine
+
+         parent
+        /      \
+    child1    child2
+      |
+   grandchild
+
+cancel parent → everyone dies
+cancel child1 → child1 + grandchild die, parent + child2 fine
+```
+
+**Rules:**
+1. Context is the **first parameter**: `func Foo(ctx context.Context, ...)`
+2. Never store context in a struct — pass it through calls
+3. Always `defer cancel()`
+4. Every I/O function should accept ctx: `db.QueryContext(ctx, ...)`, `http.NewRequestWithContext(ctx, ...)`
+
+**Without context in microservices:** user cancels request but DB query keeps running, goroutines pile up, connections exhaust → cascading failure. With context → everything stops cleanly.
+
+---
+
+## 6. Generics
+
+> **Analogy: A vending machine blueprint.** Without generics = separate machine for Coke, Pepsi, Water. With generics = one machine, tell it what to dispense.
+
+**The problem:**
+```go
+func MinInt(a, b int) int { ... }
+func MinFloat(a, b float64) float64 { ... }
+func MinString(a, b string) string { ... }
+// Same logic, copy-pasted 3 times. Only the type changes.
+```
+
+**With generics — one function:**
+```go
+func Min[T constraints.Ordered](a, b T) T {
+    if a < b { return a }
+    return b
+}
+Min(3, 5)           // int
+Min(3.14, 2.71)     // float64
+Min("apple", "banana") // string
+```
+
+### Type Constraints
+
+**Constraint = "what shape fits the slot."** Not every type supports `<`, so you tell Go what's allowed.
+
+```go
+[T any]                    // anything — no operations guaranteed
+[T comparable]             // supports == and != (can be map key)
+[T constraints.Ordered]    // supports < > <= >= (numbers, strings)
+```
+
+### Custom Constraints
+
+```go
+type Number interface {
+    int | int32 | int64 | float32 | float64
+}
+
+func Sum[T Number](nums []T) T {
+    var total T
+    for _, n := range nums { total += n }
+    return total
+}
+```
+
+**The `~` tilde — include derived types:**
+```go
+type Celsius float64
+
+// ~float64 means "float64 OR any type defined as type X float64"
+type Temperature interface { ~float64 }
+
+// Now Celsius works too
+func Avg[T Temperature](temps []T) T { ... }
+```
+
+### Generic Types
+
+```go
+type Stack[T any] struct {
+    items []T
+}
+
+func (s *Stack[T]) Push(item T) {
+    s.items = append(s.items, item)
+}
+
+func (s *Stack[T]) Pop() T {
+    last := s.items[len(s.items)-1]
+    s.items = s.items[:len(s.items)-1]
+    return last
+}
+
+intStack := Stack[int]{}
+strStack := Stack[string]{}
+```
+
+### Type Inference
+
+Go can figure out the type from arguments — no need to specify explicitly:
+
+```go
+Min[int](3, 5)    // explicit
+Min(3, 5)         // inferred — Go sees int, figures it out
+
+// When inference FAILS (must be explicit):
+s := Stack[int]{}      // no args to infer from
+Min(3, 3.14)           // ambiguous — int or float64?
+Min[float64](3, 3.14)  // explicit fixes it
+```
+
+### When to Use vs Not
+
+```
+✅ USE: Same logic, different types (Min, Max, Contains, Filter)
+✅ USE: Generic data structures (Stack, Queue, Tree)
+✅ USE: Utility/library code across many types
+
+❌ DON'T: Only one type will ever be used
+❌ DON'T: Different types need different behavior → use interfaces
+❌ DON'T: Simple cases — []int is fine, don't overcomplicate
+```
+
+> **Rule of thumb:** About to copy-paste a function and only change the type? → Generics. Different types need different behavior? → Interfaces.
+
+---
+
 ## Practice Exercises
 
 ### Exercise 1: Ping-Pong (bidirectional channels)
@@ -541,6 +759,12 @@ Goroutine does slow work (3s sleep). Use `select` with `time.After(2s)` to timeo
 ### Exercise 4: Worker Pool with WaitGroup
 Launch 3 workers. Send 10 jobs through a channel. Each worker prints "Worker X processed job Y". Main waits for all workers using WaitGroup.
 
+### Exercise 5: Context Cancellation
+Make 3 goroutines do "slow work" concurrently. Return the first result, cancel the other two using `context.WithCancel`.
+
+### Exercise 6: Generic Filter
+Write a `Filter[T any]` function that takes a slice and a predicate `func(T) bool`, returns only matching elements.
+
 ---
 
-*Last updated: 2026-04-01*
+*Last updated: 2026-04-03*
