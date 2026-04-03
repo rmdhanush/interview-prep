@@ -44,6 +44,7 @@
    - [Panic — When and When Not](#panic--when-and-when-not)
    - [Recover — Catching Panics](#recover--catching-panics)
    - [Bug vs Error](#bug-vs-error)
+8. [Memory Model](#8-memory-model)
 
 ---
 
@@ -905,6 +906,47 @@ Network/DB/file/user input error?   → return error
 HTTP handler might crash?           → recover middleware
 Third-party code might panic?       → defer/recover, convert to error
 ```
+
+---
+
+## 8. Memory Model
+
+> **Core question:** "When goroutine A writes a value, can goroutine B see it?"
+> **Answer:** Only if there's a **happens-before** relationship between them.
+
+**Why it's not obvious:** Each CPU core has its own cache. Writes may stay in one core's cache and never reach the other. Compiler/CPU can also reorder instructions.
+
+### Happens-Before Guarantees
+
+| Mechanism | Guarantee |
+|---|---|
+| Channel send → receive | Receiver sees everything sender wrote before send |
+| `mu.Unlock()` → `mu.Lock()` | Next locker sees everything previous unlocker wrote |
+| `wg.Done()` → `wg.Wait()` returns | Waiter sees everything done before Done() |
+| `once.Do(f)` completes → next `once.Do` returns | All callers see f's writes |
+| `close(ch)` → receive of zero value | Receiver sees everything before close |
+| `go` statement → goroutine starts | New goroutine sees everything before `go` |
+
+### Race Condition = No Happens-Before
+
+| Code | Safe? | Why |
+|---|---|---|
+| `go func(){ x=42 }()` then `<-ch; print(x)` | Yes | Channel is sync point |
+| `go func(){ mu.Lock(); x=42; mu.Unlock() }()` | Yes | Mutex is sync point |
+| `go func(){ x=42 }()` then `print(x)` | **NO** | No sync → data race |
+
+### How to Fix Races
+
+| Fix | When to use |
+|---|---|
+| Channel | Goroutines need to communicate |
+| Mutex | Protecting shared state |
+| `atomic` | Simple counters only |
+| No sharing | Each goroutine owns its data |
+
+**Detect:** `go test -race ./...` or `go run -race main.go`
+
+> **Rule:** Two goroutines + same variable + at least one writes + no sync point = **data race = undefined behavior**.
 
 ---
 
