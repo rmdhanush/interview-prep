@@ -13,6 +13,7 @@
 | Sort + Two Pointers | [3Sum](#3sum) |
 | Dummy Node + Merge | [Merge Two Sorted Lists](#merge-two-sorted-lists) |
 | Prefix + Suffix Arrays | [Product of Array Except Self](#product-of-array-except-self) |
+| Sort + Hash Map Grouping | [Group Anagrams](#group-anagrams) |
 
 ---
 
@@ -112,6 +113,41 @@ answer:  [24, 12, 8,  6]    ← left * right
 **Why it works:** For each index, the answer is "product of everything except me" = "product of everything to my left" × "product of everything to my right". No division needed.
 
 **Reuse when:** Any problem asking "compute something for each element based on all OTHER elements" — prefix/suffix decomposition. Also: Trapping Rain Water (prefix max + suffix max), running sums, subarray products.
+
+---
+
+## Group Anagrams
+
+**LeetCode #49 (Medium) | Pattern: Sort + Hash Map Grouping | Time: O(n * k log k) Space: O(n * k)**
+
+*(where n = number of strings, k = max string length)*
+
+**Algorithm:**
+1. Create a map: `sorted_string → list of original strings`
+2. For each string:
+   - Sort its characters → this becomes the key (all anagrams produce the same sorted key)
+   - Append the original string to that key's list
+3. Collect all map values as the result
+
+**Example:**
+```
+Input:  ["eat", "tea", "tan", "ate", "nat", "bat"]
+
+"eat" → sort → "aet" → map["aet"] = ["eat"]
+"tea" → sort → "aet" → map["aet"] = ["eat", "tea"]
+"tan" → sort → "ant" → map["ant"] = ["tan"]
+"ate" → sort → "aet" → map["aet"] = ["eat", "tea", "ate"]
+"nat" → sort → "ant" → map["ant"] = ["tan", "nat"]
+"bat" → sort → "abt" → map["abt"] = ["bat"]
+
+Output: [["eat","tea","ate"], ["tan","nat"], ["bat"]]
+```
+
+**Go tip:** `append` on a nil slice works fine — `res[key] = append(res[key], str)` handles both new and existing keys without an if/else check.
+
+**Why it works:** Anagrams have the same characters, just in different order. Sorting normalizes them to the same key. Map groups them automatically.
+
+**Reuse when:** Any problem that needs grouping by some canonical/normalized form — grouping by frequency, grouping by pattern, etc.
 
 ---
 
