@@ -1169,42 +1169,42 @@ const DATA = {
           confidence: ['Go Concurrency', 'DSA Basics (Hashing, Two Pointers)']
         },
         {
-          name: 'Week 2: DSA Arrays/Strings/Sliding Window + Go Testing', dates: 'Apr 06 - Apr 12',
+          name: 'Week 2: DSA Arrays/Strings/Sliding Window + Go Core Language', dates: 'Apr 06 - Apr 12',
           days: [
             { label: 'Monday, Apr 06', tasks: [
               { text: 'DSA: Longest Substring Without Repeating Characters (Medium)', tag: 'dsa' },
               { text: 'DSA: Container With Most Water (Medium)', tag: 'dsa' },
-              { text: 'Go Testing: testing package, t.Run subtests, table-driven tests', tag: 'go' },
+              { text: 'Go: Interface design — small interfaces, embedding, implicit satisfaction', tag: 'go' },
             ]},
             { label: 'Tuesday, Apr 07', tasks: [
               { text: 'DSA: Minimum Window Substring (Hard)', tag: 'dsa' },
               { text: 'DSA: Find All Anagrams in a String (Medium)', tag: 'dsa' },
-              { text: 'Go Testing: Benchmarking (testing.B), Fuzz testing (testing.F)', tag: 'go' },
+              { text: 'Go: Error handling — Is/As/wrapping, sentinel errors, custom error types', tag: 'go' },
             ]},
             { label: 'Wednesday, Apr 08', tasks: [
               { text: 'DSA: Trapping Rain Water (Hard)', tag: 'dsa' },
               { text: 'DSA: Rotate Image (Medium)', tag: 'dsa' },
-              { text: 'Go Tooling: Race detector, go vet, staticcheck, golangci-lint', tag: 'go' },
+              { text: 'Go Testing: table-driven tests, t.Run subtests, TestMain, mocking with interfaces', tag: 'go' },
             ]},
             { label: 'Thursday, Apr 09', tasks: [
               { text: 'DSA: Spiral Matrix (Medium)', tag: 'dsa' },
               { text: 'DSA: Next Permutation (Medium)', tag: 'dsa' },
-              { text: 'Go Profiling: pprof — CPU, memory, goroutine profiling', tag: 'go' },
+              { text: 'Go: Struct embedding, composition over inheritance, pointer vs value receivers', tag: 'go' },
             ]},
             { label: 'Friday, Apr 10', tasks: [
               { text: 'DSA: Review 2 hardest problems from this week', tag: 'dsa' },
-              { text: 'Go: Write benchmarks + profiles for a concurrent program', tag: 'go' },
+              { text: 'Go HTTP: net/http, handlers, HandlerFunc, middleware chain pattern', tag: 'go' },
             ]},
             { label: 'Saturday, Apr 11', tasks: [
               { text: 'DSA: 2 new sliding window problems from NeetCode', tag: 'dsa' },
-              { text: 'Go: Build a small HTTP server with proper tests + benchmarks', tag: 'go' },
+              { text: 'Go: Build a small HTTP server with middleware + proper tests', tag: 'go' },
             ]},
             { label: 'Sunday, Apr 12', tasks: [
               { text: 'Weekly review: re-solve 3 weakest DSA problems', tag: 'dsa' },
-              { text: 'Review all Go testing patterns, prepare cheat sheet', tag: 'go' },
+              { text: 'Review all Week 2 Go topics, prepare cheat sheet', tag: 'go' },
             ]},
           ],
-          confidence: ['Sliding Window', 'Two Pointers', 'Go Testing & Profiling']
+          confidence: ['Sliding Window', 'Two Pointers', 'Interfaces/Error Handling']
         },
         {
           name: 'Week 3: DSA Binary Search/Stacks/Trees + LLD Fundamentals', dates: 'Apr 13 - Apr 19',
@@ -1222,18 +1222,18 @@ const DATA = {
             { label: 'Wednesday, Apr 15', tasks: [
               { text: 'DSA: Daily Temperatures (Medium)', tag: 'dsa' },
               { text: 'DSA: Binary Tree Level Order Traversal (Medium)', tag: 'dsa' },
-              { text: 'LLD Patterns: Factory, Builder, Singleton in Go', tag: 'lld' },
+              { text: 'LLD Patterns: Factory, Strategy, Observer in Go', tag: 'lld' },
             ]},
             { label: 'Thursday, Apr 16', tasks: [
               { text: 'DSA: Validate BST (Medium)', tag: 'dsa' },
               { text: 'DSA: Lowest Common Ancestor (Medium)', tag: 'dsa' },
               { text: 'DSA: Diameter of Binary Tree (Easy)', tag: 'dsa' },
-              { text: 'LLD Patterns: Strategy, Observer, State in Go', tag: 'lld' },
+              { text: 'Dependency Injection + Clean Architecture in Go', tag: 'lld' },
             ]},
             { label: 'Friday, Apr 17', tasks: [
               { text: 'DSA: Construct BT from Inorder/Preorder (Medium)', tag: 'dsa' },
               { text: 'DSA: Serialize/Deserialize Binary Tree (Hard)', tag: 'dsa' },
-              { text: 'LLD Patterns: Adapter, Decorator, Command in Go', tag: 'lld' },
+              { text: 'Go: Worker pool implementation + graceful shutdown pattern', tag: 'go' },
             ]},
             { label: 'Saturday, Apr 18', tasks: [
               { text: 'LLD: Study Parking Lot design (watch Concept && Coding)', tag: 'lld' },
@@ -1241,10 +1241,10 @@ const DATA = {
             ]},
             { label: 'Sunday, Apr 19', tasks: [
               { text: 'DSA Review: re-solve 3 hardest tree/stack problems', tag: 'dsa' },
-              { text: 'LLD: Clean Architecture concepts + dependency rule', tag: 'lld' },
+              { text: 'Review: mini clean architecture Go project using Week 3 patterns', tag: 'lld' },
             ]},
           ],
-          confidence: ['Binary Search', 'Trees (DFS/BFS)', 'SOLID & Design Patterns']
+          confidence: ['Binary Search', 'Trees (DFS/BFS)', 'SOLID & DI/Clean Arch']
         },
         {
           name: 'Week 4: DSA Graphs/Heaps/Greedy + LLD Practice #1', dates: 'Apr 20 - Apr 26',
@@ -1290,7 +1290,7 @@ const DATA = {
     {
       name: 'Phase 2: Core Skills', weeks: [
         {
-          name: 'Week 5: Machine Coding Mastery + REST/gRPC', dates: 'Apr 27 - May 03',
+          name: 'Week 5: Machine Coding Mastery + REST/Databases', dates: 'Apr 27 - May 03',
           days: [
             { label: 'Monday, Apr 27', tasks: [
               { text: 'REST API: HTTP methods, status codes, idempotency, versioning', tag: 'go' },
@@ -1301,8 +1301,8 @@ const DATA = {
               { text: 'Review Splitwise: settlement algorithm, extensibility', tag: 'mc' },
             ]},
             { label: 'Wednesday, Apr 29', tasks: [
-              { text: 'gRPC: proto3, unary/streaming RPCs, interceptors', tag: 'go' },
-              { text: 'gRPC: Build a Go gRPC service with gRPC-Gateway', tag: 'go' },
+              { text: 'SQL/PostgreSQL: queries, indexes, EXPLAIN, transactions', tag: 'infra' },
+              { text: 'Go + PostgreSQL: pgx driver, connection pooling, query patterns', tag: 'infra' },
             ]},
             { label: 'Thursday, Apr 30', tasks: [
               { text: 'Machine Coding: Snake & Ladder — TIMED 90 min', tag: 'mc' },
@@ -1310,7 +1310,7 @@ const DATA = {
             ]},
             { label: 'Friday, May 01', tasks: [
               { text: 'REST: Middleware patterns (auth, logging, rate limit, recovery)', tag: 'go' },
-              { text: 'REST: OpenAPI/Swagger generation for your Go API', tag: 'go' },
+              { text: 'Redis: data structures, caching patterns (cache-aside, TTL), Go redis client', tag: 'infra' },
             ]},
             { label: 'Saturday, May 02', tasks: [
               { text: 'Machine Coding: Elevator System — TIMED 90 min + review', tag: 'mc' },
@@ -1318,10 +1318,10 @@ const DATA = {
             ]},
             { label: 'Sunday, May 03', tasks: [
               { text: 'Review all 3 machine coding solutions, refactor weakest', tag: 'mc' },
-              { text: 'gRPC vs REST decision framework — write comparison notes', tag: 'go' },
+              { text: 'DB practice: write Go code with pgx + Redis, test queries', tag: 'infra' },
             ]},
           ],
-          confidence: ['Machine Coding (90 min)', 'REST API Design', 'gRPC']
+          confidence: ['Machine Coding (90 min)', 'REST API Design', 'PostgreSQL/Redis']
         },
         {
           name: 'Week 6: HLD Fundamentals + First 3 Designs', dates: 'May 04 - May 10',
@@ -1358,23 +1358,23 @@ const DATA = {
           confidence: ['System Design Framework', 'Back-of-Envelope Estimation', 'HLD Communication']
         },
         {
-          name: 'Week 7: HLD Next 3 Designs + Databases', dates: 'May 11 - May 17',
+          name: 'Week 7: HLD Next 3 Designs + Kafka + MongoDB', dates: 'May 11 - May 17',
           days: [
             { label: 'Monday, May 11', tasks: [
-              { text: 'PostgreSQL: EXPLAIN ANALYZE, B-tree/GIN/GiST indexes', tag: 'infra' },
-              { text: 'PostgreSQL: Isolation levels, MVCC, deadlocks, PgBouncer', tag: 'infra' },
+              { text: 'Kafka: topics, partitions, consumer groups, offsets', tag: 'infra' },
+              { text: 'Kafka: exactly-once semantics, DLQ, retry strategies', tag: 'infra' },
             ]},
             { label: 'Tuesday, May 12', tasks: [
               { text: 'HLD DESIGN #4: Chat System (WhatsApp) — TIMED 45 min', tag: 'hld' },
-              { text: 'Go DB: pgx driver, sqlx, golang-migrate', tag: 'infra' },
+              { text: 'Go Kafka: confluent-kafka-go, segmentio/kafka-go', tag: 'infra' },
             ]},
             { label: 'Wednesday, May 13', tasks: [
-              { text: 'Redis: data structures, TTL, eviction, cache patterns, Redlock', tag: 'infra' },
-              { text: 'Go Redis: go-redis library, pub/sub, streams', tag: 'infra' },
+              { text: 'MongoDB: document modeling, aggregation, SQL vs NoSQL matrix', tag: 'infra' },
+              { text: 'Event-driven architecture patterns with Kafka + Go', tag: 'infra' },
             ]},
             { label: 'Thursday, May 14', tasks: [
               { text: 'HLD DESIGN #5: Ticket Booking (BookMyShow) — TIMED 45 min', tag: 'hld' },
-              { text: 'MongoDB: document modeling, aggregation, SQL vs NoSQL matrix', tag: 'infra' },
+              { text: 'Kafka vs RabbitMQ vs SQS — decision framework', tag: 'infra' },
             ]},
             { label: 'Friday, May 15', tasks: [
               { text: 'HLD DESIGN #6: E-commerce Order System — TIMED 45 min', tag: 'hld' },
@@ -1382,14 +1382,14 @@ const DATA = {
             ]},
             { label: 'Saturday, May 16', tasks: [
               { text: 'Review all 3 new HLD designs — voice record 5 min each', tag: 'hld' },
-              { text: 'Build: Go service with PostgreSQL + Redis caching layer', tag: 'infra' },
+              { text: 'Build: Go service with Kafka producer/consumer', tag: 'infra' },
             ]},
             { label: 'Sunday, May 17', tasks: [
               { text: 'Re-explain all 6 HLD designs (quick 3 min each)', tag: 'hld' },
-              { text: 'Database decision framework notes (when SQL vs NoSQL vs Cache)', tag: 'infra' },
+              { text: 'Database + messaging decision framework notes', tag: 'infra' },
             ]},
           ],
-          confidence: ['PostgreSQL Deep', 'Redis Patterns', 'HLD (6 designs)']
+          confidence: ['Kafka/Event-Driven', 'MongoDB', 'HLD (6 designs)']
         },
         {
           name: 'Week 8: DSA DP/Tries + Machine Coding #2', dates: 'May 18 - May 24',
@@ -1430,15 +1430,15 @@ const DATA = {
     {
       name: 'Phase 3: Advanced', weeks: [
         {
-          name: 'Week 9: Kafka + Docker + K8s + CI/CD', dates: 'May 25 - May 31',
+          name: 'Week 9: gRPC + Docker + K8s + CI/CD', dates: 'May 25 - May 31',
           days: [
             { label: 'Monday, May 25', tasks: [
-              { text: 'Kafka: topics, partitions, consumer groups, offsets', tag: 'infra' },
-              { text: 'Kafka: exactly-once semantics, idempotent producers', tag: 'infra' },
+              { text: 'gRPC: proto3, unary/streaming RPCs, interceptors', tag: 'go' },
+              { text: 'gRPC: Build a Go gRPC service with gRPC-Gateway', tag: 'go' },
             ]},
             { label: 'Tuesday, May 26', tasks: [
-              { text: 'Kafka: DLQ, retry strategies, Kafka vs RabbitMQ vs SQS', tag: 'infra' },
-              { text: 'Go Kafka: confluent-kafka-go, segmentio/kafka-go', tag: 'infra' },
+              { text: 'gRPC vs REST decision framework — write comparison notes', tag: 'go' },
+              { text: 'gRPC: error handling, metadata, deadlines, health checks', tag: 'go' },
             ]},
             { label: 'Wednesday, May 27', tasks: [
               { text: 'Docker: multi-stage Go builds, distroless images, compose', tag: 'infra' },
@@ -1453,7 +1453,7 @@ const DATA = {
               { text: 'CI/CD: GitHub Actions for Go (lint, test, build, deploy)', tag: 'infra' },
             ]},
             { label: 'Saturday, May 30', tasks: [
-              { text: 'Hands-on: Dockerize Go service + deploy to local K8s (kind)', tag: 'infra' },
+              { text: 'Hands-on: Dockerize Go gRPC service + deploy to local K8s (kind)', tag: 'infra' },
               { text: 'Hands-on: Expose via Ingress + add Helm chart', tag: 'infra' },
             ]},
             { label: 'Sunday, May 31', tasks: [
@@ -1461,7 +1461,7 @@ const DATA = {
               { text: 'Review: can you explain K8s architecture in 5 min?', tag: 'infra' },
             ]},
           ],
-          confidence: ['Kafka', 'Docker', 'Kubernetes', 'CI/CD']
+          confidence: ['gRPC', 'Docker', 'Kubernetes', 'CI/CD']
         },
         {
           name: 'Week 10: AWS + Observability + HLD #3', dates: 'Jun 01 - Jun 07',
@@ -1498,31 +1498,31 @@ const DATA = {
           confidence: ['AWS Core Services', 'Observability Stack', 'HLD (9 designs)']
         },
         {
-          name: 'Week 11: Behavioral + Final Designs + Concurrency', dates: 'Jun 08 - Jun 14',
+          name: 'Week 11: Behavioral + Final Designs + Go Tooling', dates: 'Jun 08 - Jun 14',
           days: [
             { label: 'Monday, Jun 08', tasks: [
               { text: 'STAR Story #1: Most impactful project you led', tag: 'behavioral' },
               { text: 'STAR Story #2: Critical production incident debugging', tag: 'behavioral' },
-              { text: 'Go: Implement worker pool with graceful shutdown', tag: 'go' },
+              { text: 'Go Tooling: Benchmarking (testing.B), writing effective benchmarks', tag: 'go' },
             ]},
             { label: 'Tuesday, Jun 09', tasks: [
               { text: 'STAR Story #3: Team conflict and resolution', tag: 'behavioral' },
               { text: 'STAR Story #4: Wrong architectural decision, how you fixed it', tag: 'behavioral' },
-              { text: 'Go: Implement fan-out/fan-in pipeline with error handling', tag: 'go' },
+              { text: 'Go Profiling: pprof — CPU, memory, goroutine profiling', tag: 'go' },
             ]},
             { label: 'Wednesday, Jun 10', tasks: [
               { text: 'STAR Story #5: Mentoring a junior engineer', tag: 'behavioral' },
               { text: 'STAR Story #6: Pushed back on requirements', tag: 'behavioral' },
-              { text: 'Go: Implement rate limiter (token bucket with goroutines)', tag: 'go' },
+              { text: 'Go Tooling: Race detector, go vet, staticcheck, golangci-lint', tag: 'go' },
             ]},
             { label: 'Thursday, Jun 11', tasks: [
               { text: 'STAR Story #7: Biggest technical challenge solved', tag: 'behavioral' },
               { text: 'STAR Story #8: Process/system improvement', tag: 'behavioral' },
-              { text: 'Go: Implement circuit breaker pattern', tag: 'go' },
+              { text: 'Go Testing: Fuzz testing (testing.F), integration tests', tag: 'go' },
             ]},
             { label: 'Friday, Jun 12', tasks: [
               { text: 'HLD DESIGN #10: Food Delivery System — TIMED 45 min', tag: 'hld' },
-              { text: 'Go: Explain Go scheduler (M:N, GOMAXPROCS, work stealing)', tag: 'go' },
+              { text: 'Review: geo-matching, real-time tracking, surge pricing', tag: 'hld' },
             ]},
             { label: 'Saturday, Jun 13', tasks: [
               { text: 'HLD DESIGN #11: Video Streaming / CDN — TIMED 45 min', tag: 'hld' },
@@ -1530,10 +1530,10 @@ const DATA = {
             ]},
             { label: 'Sunday, Jun 14', tasks: [
               { text: 'HM prep: system you designed E2E, SQL vs NoSQL, Kafka vs SQS', tag: 'behavioral' },
-              { text: 'Go: memory model, happens-before — write explanation notes', tag: 'go' },
+              { text: 'Voice record: explain all 11 HLD designs (5 min each)', tag: 'hld' },
             ]},
           ],
-          confidence: ['Behavioral (STAR)', 'Go Concurrency Impl.', 'HLD (11 designs)']
+          confidence: ['Behavioral (STAR)', 'Go Tooling/Profiling', 'HLD (11 designs)']
         },
       ]
     },
