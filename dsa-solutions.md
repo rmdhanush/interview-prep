@@ -14,6 +14,7 @@
 | Dummy Node + Merge | [Merge Two Sorted Lists](#merge-two-sorted-lists) |
 | Prefix + Suffix Arrays | [Product of Array Except Self](#product-of-array-except-self) |
 | Sort + Hash Map Grouping | [Group Anagrams](#group-anagrams) |
+| Monotonic Deque | [Sliding Window Maximum](#sliding-window-maximum) |
 
 ---
 
@@ -143,11 +144,57 @@ Input:  ["eat", "tea", "tan", "ate", "nat", "bat"]
 Output: [["eat","tea","ate"], ["tan","nat"], ["bat"]]
 ```
 
-**Go tip:** `append` on a nil slice works fine — `res[key] = append(res[key], str)` handles both new and existing keys without an if/else check.
-
 **Why it works:** Anagrams have the same characters, just in different order. Sorting normalizes them to the same key. Map groups them automatically.
 
 **Reuse when:** Any problem that needs grouping by some canonical/normalized form — grouping by frequency, grouping by pattern, etc.
+
+**Go gotchas:**
+- Strings are **immutable** in Go — convert to `[]byte` before sorting, then back to `string` for the key
+- `append` on a nil map value works fine — `res[key] = append(res[key], str)` handles both new and existing keys, no if/else needed
+- When collecting results, use `out = append(out, val)` (direct assignment), not `append(out[i], val...)` which is a type mismatch
+
+---
+
+## Sliding Window Maximum
+
+**LeetCode #239 (Hard) | Pattern: Monotonic Deque | Time: O(n) Space: O(k)**
+
+**Algorithm (Bouncer analogy):**
+
+Imagine a photo booth window that fits k people. You hire a bouncer with one rule:
+
+1. Maintain a deque storing **indices** in **decreasing order** of their values (tallest person at front)
+2. Before a new element enters, the bouncer **kicks out everyone shorter or equal** from the back — they can never be the max because the new element is taller AND stays in the window longer
+3. Push new index to back of deque
+4. If front index is **outside the window** (`<= i - k`), pop it from front
+5. Once window is full (`i >= k-1`), the front of deque = current window max
+
+**Example:**
+```
+nums = [1, 3, -1, -3, 5, 3, 6, 7],  k = 3
+
+i=0: height=1  → deque: [1]
+i=1: height=3  → kick 1 → deque: [3]
+i=2: height=-1 → deque: [3, -1]          → max = 3
+i=3: height=-3 → deque: [3, -1, -3]      → max = 3
+i=4: height=5  → kick -3, -1, 3 → [5]   → max = 5
+i=5: height=3  → deque: [5, 3]           → max = 5
+i=6: height=6  → kick 3, 5 → [6]        → max = 6
+i=7: height=7  → kick 6 → [7]           → max = 7
+
+Result: [3, 3, 5, 5, 6, 7]
+```
+
+**Why O(n)?** Each element is pushed and popped **at most once** across the entire run = 2n total operations.
+
+**Why it works:** A shorter element that entered before a taller one is useless — the taller one is both bigger AND will stay in the window longer. By proactively removing losers, the front of the deque is always the current max.
+
+**Reuse when:** Any sliding window problem needing min/max — just flip the comparison for min. Also useful in problems like "next greater element" and monotonic stack/deque patterns.
+
+**Interview build-up path:**
+1. **Brute force O(n*k)** — scan all k elements per window → "k-1 elements overlap, re-scanning is wasteful"
+2. **Max-Heap O(n log n)** — max floats up, lazy-delete expired → "heap keeps useless elements (shorter + entered earlier)"
+3. **Monotonic Deque O(n)** — proactively remove losers → each element pushed/popped once
 
 ---
 
