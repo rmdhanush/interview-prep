@@ -16,6 +16,7 @@
 | Sort + Hash Map Grouping | [Group Anagrams](#group-anagrams) |
 | Monotonic Deque | [Sliding Window Maximum](#sliding-window-maximum) |
 | Sliding Window + Hash Map | [Longest Substring Without Repeating Characters](#longest-substring-without-repeating-characters) |
+| Two Pointers (Greedy Shrink) | [Container With Most Water](#container-with-most-water) |
 
 ---
 
@@ -230,6 +231,36 @@ left=1, right=4: 'b' IN map → remove s[1]='b', left=2
 **Reuse when:** "Find longest/shortest substring with some condition" → sliding window. The map tracks what's inside the window. Shrink from left when condition breaks, expand right when it holds.
 
 Also works for: Minimum Window Substring, Find All Anagrams, Longest Substring with At Most K Distinct Characters.
+
+---
+
+## Container With Most Water
+
+**LeetCode #11 (Medium) | Pattern: Two Pointers (Greedy Shrink) | Time: O(n) Space: O(1)**
+
+**Algorithm:**
+1. Left pointer at start, right pointer at end
+2. Calculate area: `min(heights[l], heights[r]) * (r - l)`
+3. Update max
+4. Move the pointer pointing to the **shorter** wall inward
+5. Repeat until pointers meet
+
+**Why move the shorter wall?**
+```
+heights[l]=1    heights[r]=8    distance=7
+area = min(1,8) * 7 = 7
+
+Moving r-- → distance shrinks, min is still 1 → area guaranteed worse
+Moving l++ → distance shrinks, BUT min might increase → area could grow
+```
+
+The shorter wall is the bottleneck. Keeping it and shrinking distance only makes things worse. Moving it is the only way to potentially find a better answer.
+
+**Common mistakes:**
+- Using `max` instead of `min` — water overflows over the shorter wall
+- Comparing indices (`l < r`) instead of heights (`heights[l] < heights[r]`) for deciding which pointer to move
+
+**Reuse when:** Any problem where you start with the widest option and greedily shrink — "maximize area/product between two endpoints." Also: Trapping Rain Water (variation), two-pointer problems where you eliminate the weaker side.
 
 ---
 
