@@ -15,6 +15,7 @@
 | Prefix + Suffix Arrays | [Product of Array Except Self](#product-of-array-except-self) |
 | Sort + Hash Map Grouping | [Group Anagrams](#group-anagrams) |
 | Monotonic Deque | [Sliding Window Maximum](#sliding-window-maximum) |
+| Sliding Window + Hash Map | [Longest Substring Without Repeating Characters](#longest-substring-without-repeating-characters) |
 
 ---
 
@@ -195,6 +196,40 @@ Result: [3, 3, 5, 5, 6, 7]
 1. **Brute force O(n*k)** — scan all k elements per window → "k-1 elements overlap, re-scanning is wasteful"
 2. **Max-Heap O(n log n)** — max floats up, lazy-delete expired → "heap keeps useless elements (shorter + entered earlier)"
 3. **Monotonic Deque O(n)** — proactively remove losers → each element pushed/popped once
+
+---
+
+## Longest Substring Without Repeating Characters
+
+**LeetCode #3 (Medium) | Pattern: Sliding Window + Hash Map | Time: O(n) Space: O(n)**
+
+**Algorithm:**
+1. Two pointers: `left` and `right` define the current window
+2. A map tracks characters currently in the window
+3. Move `right` one step at a time:
+   - If `s[right]` **already in map** → shrink window from left: delete `s[left]` from map, increment `left`. Repeat until the duplicate is removed.
+   - If `s[right]` **not in map** → expand window: add `s[right]` to map, move `right` forward
+4. At each step, update `maxLen = max(maxLen, right - left + 1)`
+
+**Example:**
+```
+s = "abcabcbb"
+
+left=0, right=0: 'a' not in map → add → window "a"       max=1
+left=0, right=1: 'b' not in map → add → window "ab"      max=2
+left=0, right=2: 'c' not in map → add → window "abc"     max=3
+left=0, right=3: 'a' IN map → remove s[0]='a', left=1
+                  'a' not in map → add → window "bca"     max=3
+left=1, right=4: 'b' IN map → remove s[1]='b', left=2
+                  'b' not in map → add → window "cab"     max=3
+...and so on
+```
+
+**Why it works:** The window always contains unique characters. When a duplicate appears, we shrink from the left until the duplicate is gone. We never move left backward, so each character is visited at most twice → O(n).
+
+**Reuse when:** "Find longest/shortest substring with some condition" → sliding window. The map tracks what's inside the window. Shrink from left when condition breaks, expand right when it holds.
+
+Also works for: Minimum Window Substring, Find All Anagrams, Longest Substring with At Most K Distinct Characters.
 
 ---
 
